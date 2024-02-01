@@ -13,7 +13,7 @@
 }
 
 :root {
-  --red: #ff4b64;
+  --green: #436850;
   --black: #404040;
   --des: #555555;
   --shadow: #ffffff1a 0px 1px 1px 0px inset, #32325d40 0px 50px 100px -20px,
@@ -78,7 +78,7 @@ header .container {
 
 .logo i {
   font-size: 5rem;
-  color: var(--red);
+  color: var(--green);
 }
 
 .btn {
@@ -87,7 +87,7 @@ header .container {
   padding: 0 3rem;
   font-size: 1.6rem;
   font-weight: 500;
-  border: 1px solid var(--red);
+  border: 1px solid var(--green);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -99,13 +99,13 @@ header .container {
 }
 
 .btn-primary {
-  background: var(--red);
+  background: var(--green);
   color: white;
 }
 
 .btn-scoundary {
   background: transparent;
-  color: var(--red);
+  color: var(--green);
 }
 
 .rounded {
@@ -278,7 +278,7 @@ header .container {
 }
 
 .learn span {
-  color: #ff4b64;
+  color: #436850;
 }
 
 .sec-title {
@@ -847,7 +847,7 @@ p a {
   display: none !important;
 }
 .error-alert h3 {
-  color: red;
+  color: var(--green);
   font-size: 1.6rem;
   font-weight: 400;
   margin-top: 2rem;
@@ -856,7 +856,7 @@ p a {
   position: relative;
 }
 .field-error {
-  background: red;
+  background: var(--green);
 
   height: 100%;
   margin-top: 0.5rem;
@@ -869,7 +869,7 @@ p a {
   padding: 0.5rem 1rem;
 }
 .promotion {
-  background: linear-gradient(-45deg, var(--red), #8589ff);
+  background: linear-gradient(-45deg, var(--green), #8589ff);
   padding: 1rem;
   position: fixed;
   top: 0;
