@@ -130,7 +130,7 @@ header .container {
 }
 
 .link-active {
-  color: var(--red);
+  color: var(--green);
   font-weight: 500;
 }
 
@@ -258,7 +258,7 @@ header .container {
 }
 
 .cetagory {
-  background: var(--red);
+  background: var(--green);
   width: fit-content;
   border-radius: 5rem;
   padding: 0.5rem 1rem;
@@ -273,7 +273,7 @@ header .container {
   display: flex;
   align-items: center;
   gap: 1rem;
-  color: var(--red);
+  color: var(--green);
   margin-top: 2rem;
 }
 
@@ -397,7 +397,7 @@ header .container {
 
 .link h2,
 .news-signup h2 {
-  color: var(--red);
+  color: var(--green);
   font-weight: 600;
   font-size: 1.7rem;
 }
@@ -446,11 +446,11 @@ footer .container {
 }
 
 .social a:hover {
-  border-color: var(--red);
+  border-color: var(--green);
 }
 
 .social a:hover i {
-  color: var(--red);
+  color: var(--green);
 }
 
 /* blog page */
@@ -593,7 +593,7 @@ footer .container {
 }
 
 .track i {
-  color: var(--red);
+  color: var(--green);
   font-size: 2.5rem;
 }
 
@@ -654,7 +654,7 @@ footer .container {
 
 .reply i {
   font-size: 2rem;
-  color: var(--red);
+  color: var(--green);
 }
 
 .public-reply {
@@ -709,7 +709,7 @@ footer .container {
 
 .reactions > div i {
   font-size: 3rem;
-  color: var(--red);
+  color: var(--green);
 }
 
 .comment-box {
@@ -727,7 +727,7 @@ footer .container {
 }
 
 p span {
-  color: var(--red);
+  color: var(--green);
 }
 
 .comment-box textarea {
@@ -836,7 +836,7 @@ p span {
 }
 
 p a {
-  color: var(--red);
+  color: var(--green);
 }
 
 .grid {
@@ -998,7 +998,7 @@ main {
     position: fixed;
     flex-direction: column;
     height: 90vh;
-    background: var(--red);
+    background: var(--green);
     width: 100%;
     justify-content: space-around;
     align-items: center;
@@ -1055,7 +1055,7 @@ main {
 }
 .timeline button i,
 .likes button i {
-  color: var(--red);
+  color: var(--green);
   font-size: 2.5rem;
 }
 .likes button i {
