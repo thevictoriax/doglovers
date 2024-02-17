@@ -1,13 +1,25 @@
 from django.shortcuts import render, get_object_or_404
 from app.models import Post, Comments
-from app.forms import CommentForm
+from app.forms import CommentForm, SubscribeForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 # Create your views here.
 def index(request):
     posts = Post.objects.all()
-    context = {'posts':posts}
+    top_posts = Post.objects.all().order_by('-view_count')[0:3]
+    recent_posts = Post.objects.all().order_by('-last_updated')[0:3]
+    subscribe_form = SubscribeForm()
+    subscribe_successful = None
+
+    if request.POST:
+        subscribe_form = SubscribeForm(request.POST)
+        if subscribe_form.is_valid():
+            subscribe_form.save()
+            subscribe_successful = "Subscribed successfully"
+            subscribe_form = SubscribeForm()
+
+    context = {'posts':posts, 'top_posts': top_posts, 'recent_posts':recent_posts, 'subscribe_form':subscribe_form, 'subscribe_successful':subscribe_successful}
     return render(request, 'app/index.html', context)
 
 def post_page(request, slug):
