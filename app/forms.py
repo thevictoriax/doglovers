@@ -11,8 +11,8 @@ class CommentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['content'].widget.attrs['placeholder'] = 'Напишіть свій коментар...'
-        self.fields['email'].widget.attrs['placeholder'] = 'Email'
-        self.fields['name'].widget.attrs['placeholder'] = 'Нікнейм'
+        self.fields['email'].widget.attrs['placeholder'] = 'Електронна пошта'
+        self.fields['name'].widget.attrs['placeholder'] = "Ім'я"
         self.fields['website'].widget.attrs['placeholder'] = 'Веб-сайт'
 
 

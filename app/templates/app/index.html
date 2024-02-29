@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block title %}Blog | Welcome{% endblock title %}
 {% block content %}
     <main class="sp">
@@ -74,13 +75,17 @@
                   {{post.title}}
                 </h3>
                 <div class="author">
-                  <div class="profile-pic">
-                    <img src="images/author.svg" alt="" />
-                  </div>
-                  <div class="details">
-                    <p>Author name</p>
-                    <small>{{post.last_updated|date}}</small>
-                  </div>
+                          <div class="profile-pic">
+                            <img src="{{post.author.profile.profile_image.url}}" alt="" />
+                          </div>
+                          <div class="details">
+                            <p>{{post.author.first_name}}</p>
+                            <small>
+                            {% language 'uk' %}
+                            {{ post.last_updated|date:"l, d F Y" }}
+                            {% endlanguage %}
+                            </small>
+                          </div>
                 </div>
               </div>
             </div>
@@ -90,7 +95,7 @@
         </div>
         <center>
           <a href=""><button class="btn btn-primary rounded view">
-            View more <span class="material-icons"> trending_flat </span>
+            Побачити більше <span class="material-icons"> trending_flat </span>
           </button></a>
         </center>
       </div>
@@ -112,13 +117,17 @@
                   {{post.title}}
                 </h3>
                 <div class="author">
-                  <div class="profile-pic">
-                    <img src="images/author.svg" alt="" />
-                  </div>
-                  <div class="details">
-                    <p>Author name</p>
-                    <small>{{post.last_updated|date}}</small>
-                  </div>
+                          <div class="profile-pic">
+                            <img src="{{post.author.profile.profile_image.url}}" alt="" />
+                          </div>
+                          <div class="details">
+                            <p>{{post.author.first_name}}</p>
+                            <small>
+                            {% language 'uk' %}
+                            {{ post.last_updated|date:"l, d F Y" }}
+                            {% endlanguage %}
+                            </small>
+                          </div>
                 </div>
               </div>
             </div>
@@ -128,7 +137,7 @@
         </div>
         <center>
           <a href=""><button class="btn btn-primary rounded view">
-            View more <span class="material-icons"> trending_flat </span>
+            Побачити більше <span class="material-icons"> trending_flat </span>
           </button></a>
         </center>
       </div>

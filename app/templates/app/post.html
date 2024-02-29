@@ -36,6 +36,7 @@
                   <div class="track">
                     <i class="uil uil-users-alt"></i>
                     <p class="view-count">{{ post.view_count }} перегляд{{ post.view_count|pluralize:"перегляд,перегляди,переглядів" }}</p>
+                    {% comment %} <p class="view-count">{{ post.view_count }} view{{ post.view_count|pluralize}}</p> {% endcomment %}
                   </div>
                   <div class="track">
                     <form action="" method="POST">
@@ -101,7 +102,11 @@
                         </div>
                         <div class="details">
                           <p>{{comment.name}}</p>
-                          <small>{{comment.date|date}}</small>
+                          <small>
+                            {% language 'uk' %}
+                            {{ comment.date|date:"d F Y" }}
+                            {% endlanguage %}
+                            </small>
                         </div>
                       </div>
                       <div class="comment-sec-main">
@@ -147,7 +152,11 @@
                             </div>
                             <div class="details">
                               <p>{{reply.name}}</p>
-                              <small>{{reply.date|date}}</small>
+                              <small>
+                            {% language 'uk' %}
+                            {{ reply.date|date:"d F Y" }}
+                            {% endlanguage %}
+                            </small>
                             </div>
                           </div>
                           <div class="comment">
