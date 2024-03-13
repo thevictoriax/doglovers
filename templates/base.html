@@ -27,14 +27,14 @@
   <body>
     <header>
       <div class="container container-fluid">
-        <div class="logo">
+        <a class="logo" href="{% url 'index' %}">
           <img src="{% static 'app/images/doglovers.png' %}" alt="Logo" style="width: 60px; height: 55px;">
           <!-- <i class="fa-brands fa-blogger"></i> -->
-        </div>
+        </a>
         <div class="links">
-          <a href="index.html">Головна</a>
-          <a href="pages/blog.html">Блог</a>
-          <a href="pages/author.html">Профіль</a>
+          <a href="{% url 'index' %}">Головна</a>
+          <a href="{% url 'about' %}">Про блог</a>
+          <a href="">Усі статті</a>
         </div>
         <div class="action-btn">
           <a href="pages/login.html"
@@ -61,9 +61,9 @@
           <div class="link">
             <h2>Quick link</h2>
             <div class="q-link">
-              <a href="#">Головна</a>
-              <a href="#">Блог</a>
-              <a href="#">Скасувати підписку</a>
+              <a href="{% url 'index' %}">Головна</a>
+              <a href="{% url 'about' %}">Про блог</a>
+              <a href="">Усі статті</a>
             </div>
           </div>
           <div class="link">
