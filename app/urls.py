@@ -8,7 +8,9 @@ urlpatterns = [
    path('post/index.html', views.index, name='index'),
    path('tag/index.html', views.index, name='index'),
    path('author/index.html', views.index, name='index'),
-   path('author/<slug:slug>', views.author_page, name='author_page')
+   path('author/<slug:slug>', views.author_page, name='author_page'),
+   path('search/', views.search_posts, name='search')
+
 
 
 ]

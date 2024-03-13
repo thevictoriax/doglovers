@@ -55,5 +55,9 @@ class Comments(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     parent = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True, related_name='replies')
 
+class WebsiteMeta(models.Model):
+   title = models.CharField(max_length=200)
+   description = models.CharField(max_length=500)
+   about = models.TextField()
 
 

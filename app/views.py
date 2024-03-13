@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from app.models import Post, Comments, Tag, Profile
+from app.models import Post, Comments, Tag, Profile, WebsiteMeta
 from app.forms import CommentForm, SubscribeForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -14,6 +14,10 @@ def index(request):
     featured_blog = Post.objects.filter(is_featured = True)
     subscribe_form = SubscribeForm()
     subscribe_successful = None
+    website_info = None
+
+    if WebsiteMeta.objects.all().exists():
+        website_info = WebsiteMeta.objects.all()[0]
 
     if featured_blog:
         featured_blog = featured_blog[0]
@@ -25,7 +29,7 @@ def index(request):
             subscribe_successful = "Subscribed successfully"
             subscribe_form = SubscribeForm()
 
-    context = {'posts':posts, 'top_posts': top_posts, 'recent_posts':recent_posts, 'subscribe_form':subscribe_form, 'subscribe_successful':subscribe_successful, 'featured_blog':featured_blog}
+    context = {'posts':posts, 'top_posts': top_posts, 'website_info': website_info, 'recent_posts':recent_posts, 'subscribe_form':subscribe_form, 'subscribe_successful':subscribe_successful, 'featured_blog':featured_blog}
     return render(request, 'app/index.html', context)
 
 def post_page(request, slug):
@@ -81,3 +85,12 @@ def author_page(request, slug):
 
     context = {'profile':profile, 'top_posts':top_posts, 'recent_posts': recent_posts, 'top_authors':top_authors}
     return render(request, 'app/author.html', context)
+
+def search_posts(request):
+    search_query = ''
+    if request.GET.get('q'):
+        search_query= request.GET.get('q')
+    posts = Post.objects.filter(title__icontains=search_query)
+    print('Пошук : ', search_query)
+    context = {'posts': posts, 'search_query': search_query}
+    return render(request, 'app/search.html', context)
