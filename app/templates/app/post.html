@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Блог | Стаття{% endblock title %}
+{% block title %}Blog | The Super Blog{% endblock title %}
 {% load static %}
-{% load i18n %}
 
 {% block content %}
       <div class="container">
@@ -12,7 +11,8 @@
               <div class="top flex">
                 <div class="page-name">
                   <a href="#" class="learn">
-                    <span class="material-icons"> keyboard_return </span> Повернутись назад
+                    <span class="material-icons"> keyboard_return </span> Go
+                    back
                   </a>
                   <h1>Blog</h1>
                 </div>
@@ -22,33 +22,43 @@
             <center>
               <div class="typo">
                 <h1 class="title blog-title">
-                  {{ post.title }}
+                  {{post.title}}
                 </h1>
                 <div class="timeline">
                   <div class="track">
                     <i class="uil uil-clock"></i>
-                    <p class="time">
-                      {% language 'uk' %}
-                        {{ post.last_updated|date:"l, d F Y" }}
-                      {% endlanguage %}
-                    </p>
+                    <p class="time">{{post.last_updated|date}}</p>
                   </div>
                   <div class="track">
                     <i class="uil uil-users-alt"></i>
-                    <p class="view-count">{{ post.view_count }} перегляд{{ post.view_count|pluralize:"перегляд,перегляди,переглядів" }}</p>
-                    {% comment %} <p class="view-count">{{ post.view_count }} view{{ post.view_count|pluralize}}</p> {% endcomment %}
+                    <p class="view-count">{{post.view_count}} view{{post.view_count|pluralize}}</p>
                   </div>
                   <div class="track">
-                    <form action="" method="POST">
+                    {% if user.is_authenticated %}
+                    <form action="{% url 'bookmark_post' post.slug %}" method="POST">
+                      {% csrf_token %}
+                      <input type="hidden" name="post_id" value="{{post.id}}">
+                      {% if is_bookmarked %}
+                      <button type="submit" class="btn btn-info">
+                        <i class="fa-solid fa-bookmark"></i>
+                        <p class="bookmark">Remove Bookmark</p>
+                      </button>
+                      {% else %}
                       <button type="submit" class="btn btn-info">
                         <i class="uil uil-bookmark-full"></i>
-                        <p class="bookmark">Закладка</p>
+                        <p class="bookmark">Bookmark</p>
                       </button>
+                      {% endif %}
                     </form>
+                    {% else %}
+                    <a class="track" href="{% url 'login' %}">
+                      <i class="uil uil-bookmark-full"></i>
+                      <p class="bookmark">Bookmark</p>
+                    </a><br>
+                    {% endif %}
                   </div>
                 </div>
               </div>
-              
             </center>
             <section class="mt">
               <div class="container">
@@ -59,7 +69,7 @@
                   </div>
                   <div class="blog-post-content">
                     <p>
-                      {{post.content | safe}}
+                      {{post.content|safe}}
                     </p>
                     <div class="blog-tags">
                     {% for tag in post.tags.all %}
@@ -102,11 +112,7 @@
                         </div>
                         <div class="details">
                           <p>{{comment.name}}</p>
-                          <small>
-                            {% language 'uk' %}
-                            {{ comment.date|date:"d F Y" }}
-                            {% endlanguage %}
-                            </small>
+                          <small>{{comment.date|date}}</small>
                         </div>
                       </div>
                       <div class="comment-sec-main">
@@ -117,13 +123,13 @@
                             </p>
                           </div>
                           <div class="reply">
-                            <button onclick="toggleDiv(this)">Відповісти</button>
+                            <button onclick="toggleDiv(this)">Reply</button>
                           </div>
                           <div class="comment-box" id="comment-reply-box">
-                            <h3>Відповісти</h3>
+                            <h3>Reply to post</h3>
                             <p>
-                              Ваша електронна адреса не буде опублікована. Обов'язкові поля
-                              позначені<span>*</span>
+                              Your email address will not be published. Required fields
+                              are marked<span>*</span>
                             </p>
                             <form method="POST">
                               {% csrf_token %}
@@ -137,7 +143,7 @@
                               </div>
               
                               <button class="btn btn-primary rounded">
-                                Відповісти
+                                Post Reply
                               </button>
                             </form>
                           </div>  
@@ -152,11 +158,7 @@
                             </div>
                             <div class="details">
                               <p>{{reply.name}}</p>
-                              <small>
-                            {% language 'uk' %}
-                            {{ reply.date|date:"d F Y" }}
-                            {% endlanguage %}
-                            </small>
+                              <small>{{reply.date|date}}</small>
                             </div>
                           </div>
                           <div class="comment">
@@ -176,10 +178,10 @@
                   </div>
                 </div>
                 <div class="comment-box">
-                  <h3>Залишіть новий коментар на цей пост</h3>
+                  <h3>Leave a new comment to this post</h3>
                   <p>
-                    Ваша електронна адреса не буде опублікована. Обов'язкові поля
-                    позначені<span>*</span>
+                    Your email address will not be published. Required fields
+                    are marked<span>*</span>
                   </p>
                   <form method="POST">
                     {% csrf_token %}
@@ -191,7 +193,7 @@
                       {{form.website}}
                     </div>
                     <button class="btn btn-primary rounded">
-                      Опублікувати
+                      Post comment
                     </button>
                   </form>
                 </div>
@@ -203,14 +205,15 @@
           <!-- right layout -->
           <div class="right">
             <div class="block">
-              <h2 class="title2">Нові статті</h2>
+              <h2 class="title2">Most recent</h2>
               <div class="recent-post">
                 <div class="rounded-img">
                   <img src="../images/post.png" alt="" />
                 </div>
                 <div class="recent-content">
                   <h3>
-                    will be added soon
+                    A blog title and other stuffs will add here, also we can
+                    incluse.
                   </h3>
                   <a class="learn" href="#"
                     >Learn more
@@ -224,7 +227,8 @@
                 </div>
                 <div class="recent-content">
                   <h3>
-                    will be added soon
+                    A blog title and other stuffs will add here, also we can
+                    incluse.
                   </h3>
                   <a class="learn" href="#"
                     >Learn more
@@ -238,7 +242,8 @@
                 </div>
                 <div class="recent-content">
                   <h3>
-                    will be added soon
+                    A blog title and other stuffs will add here, also we can
+                    incluse.
                   </h3>
                   <a class="learn" href="#"
                     >Learn more
@@ -249,7 +254,7 @@
             </div>
 
             <div class="block r-blog">
-              <h2 class="title2">Пов'язані блоги</h2>
+              <h2 class="title2">Related Blogs</h2>
               <!-- card -->
               <a href="#">
                 <div class="card">
@@ -259,7 +264,8 @@
                   </div>
                   <div class="card-content">
                     <h3>
-                      will be added soon
+                      A blog title and other stuffs will add here, also we can
+                      include.
                     </h3>
                     <div class="author">
                       <div class="profile-pic">
@@ -284,7 +290,8 @@
                   </div>
                   <div class="card-content">
                     <h3>
-                      will be added soon
+                      A blog title and other stuffs will add here, also we can
+                      include.
                     </h3>
                     <div class="author">
                       <div class="profile-pic">
@@ -301,10 +308,11 @@
               <!-- card end-->
             </div>
             <div class="block">
-              <h2 class="title2">Найпопулярніші категорії</h2>
+              <h2 class="title2">Top category</h2>
               <div class="card">
                 <h3>
-                  will be added soon
+                  A blog title and other stuffs will add here, lso we can
+                  incluse.
                 </h3>
                 <p>
                   Lorem ipsum began as scrambled, nonsensical Latin derived from
@@ -317,7 +325,8 @@
               </div>
               <div class="card">
                 <h3>
-                  will be added soon
+                  A blog title and other stuffs will add here, lso we can
+                  incluse.
                 </h3>
                 <p>
                   Lorem ipsum began as scrambled, nonsensical Latin derived from
@@ -330,7 +339,8 @@
               </div>
               <div class="card">
                 <h3>
-                  will be added soon
+                  A blog title and other stuffs will add here, lso we can
+                  incluse.
                 </h3>
                 <p>
                   Lorem ipsum began as scrambled, nonsensical Latin derived from
@@ -343,7 +353,7 @@
               </div>
             </div>
             <div class="block">
-              <h2 class="title2">Найпопулярніші теги</h2>
+              <h2 class="title2">Top Tags</h2>
               <div class="blog-tags">
                 <div class="tag">Tag</div>
                 <div class="tag">Tag content</div>
