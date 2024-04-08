@@ -34,9 +34,9 @@
         <div class="links">
           <a href="{% url 'index' %}">Головна</a>
           <a href="{% url 'about' %}">Про блог</a>
-          <a href="">Усі статті</a>
+          <a href="{% url 'all_posts' %}">Усі статті</a>
           {% if user.is_authenticated %}
-          <a href="{% url 'all_bookmarked_posts' %}">Закладкм</a>
+          <a href="{% url 'all_bookmarked_posts' %}">Мої закладки</a>
           {% endif %}
         </div>
         <div class="action-btn">
