@@ -38,6 +38,9 @@
           {% if user.is_authenticated %}
           <a href="{% url 'all_bookmarked_posts' %}">Мої закладки</a>
           {% endif %}
+          {% if user.is_authenticated %}
+          <a href="{% url 'all_liked_posts' %}">Мої вподобайки</a>
+          {% endif %}
         </div>
         <div class="action-btn">
         {% if user.is_authenticated %}
@@ -73,15 +76,21 @@
             <div class="q-link">
               <a href="{% url 'index' %}">Головна</a>
               <a href="{% url 'about' %}">Про блог</a>
-              <a href="">Усі статті</a>
+              <a href="{% url 'all_posts' %}">Усі статті</a>
             </div>
           </div>
           <div class="link">
-            <h2>Top cetagory</h2>
-            <div class="q-link">
-              <a href="#">Головна</a>
-              <a href="#">Блог</a>
-              <a href="#">Скасувати підписку</a>
+          {% if user.is_authenticated %}
+            <h2>Улюблені</h2>
+            <div class="q-link">   
+              <a href="{% url 'all_bookmarked_posts' %}">Закладки</a>
+              <a href="{% url 'all_liked_posts' %}">Вподобайки</a>
+              {% else %}
+              <h2>Приєднуйся до нас</h2>
+            <div class="q-link">   
+              <a href="{% url 'login' %}">Авторизуватись</a>
+              <a href="{% url 'register' %}">Зареєструватись</a>
+              {% endif %}
             </div>
           </div>
           <div class="news-signup">
