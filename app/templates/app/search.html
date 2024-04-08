@@ -6,12 +6,13 @@
       <div class="container">
         <div class="page-top">
           <div class="top flex">
-            <div class="page-name">
-              <a href="#" class="learn">
-                <span class="material-icons"> keyboard_return </span> Повернутись назад
-              </a>
-              <h1>Пошук</h1>
-            </div>
+                  <div class="page-name">
+  <a href="javascript:history.back()" class="learn">
+    <span class="material-icons">keyboard_return</span> Go back
+  </a>
+  <h1>Пошук</h1>
+</div>
+        </div>
             <form class="search-bar s-active" method="GET">
               <input type="text" placeholder="Пошук" name="q" value = "{{search_query}}" />
               <button type = "submit" class="animated-search">
@@ -27,7 +28,7 @@
         <div class="grid">
           {% for post in posts %}
           <!-- card -->
-          <a href="#">
+          <a href="{% url 'post_page' post.slug %}">
             <div class="card">
               <div class="post-img">
                 <img src="{{post.image.url}}" alt="" />

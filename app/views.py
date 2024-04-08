@@ -38,6 +38,7 @@ def post_page(request, slug):
     post = Post.objects.get(slug=slug)
     comments = Comments.objects.filter(post=post, parent=None)
     form = CommentForm()
+    
 
     bookmarked = False
     if post.bookmarks.filter(id=request.user.id).exists():
@@ -72,13 +73,20 @@ def post_page(request, slug):
                 comment.save()
                 return HttpResponseRedirect(reverse('post_page', kwargs={'slug':slug}))
 
+    comments_count = comments.count()
     if post.view_count is None:
         post.view_count = 1
     else:
         post.view_count = post.view_count + 1
     post.save()
     
-    context = {'post':post, 'form':form, 'comments':comments, 'is_bookmarked':is_bookmarked, 'post_is_liked':  post_is_liked, 'number_of_likes':number_of_likes}
+    # sidebar
+    recent_posts= Post.objects.exclude(id=post.id).order_by('-last_updated')[0:3]
+    top_authors = User.objects.annotate(number=Count('post')).order_by('-number')
+    tags = Tag.objects.all()
+    related_posts = Post.objects.exclude(id = post.id).filter(author=post.author)[0:3]
+
+    context = {'post':post, 'form':form, 'comments':comments, 'is_bookmarked':is_bookmarked, 'post_is_liked':  post_is_liked, 'number_of_likes':number_of_likes, 'recent_posts': recent_posts, 'top_authors':top_authors, 'tags':tags, 'related_posts':related_posts, 'comments_count':comments_count}
     return render(request, 'app/post.html', context)
 
 def tag_page(request, slug):
