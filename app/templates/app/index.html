@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}Блог | Головна{% endblock title %}
+{% block title %}Любителі собак | Головна{% endblock title %}
 {% block content %}
     <main class="sp">
       <div class="container">
@@ -15,7 +15,7 @@
           {% if website_info.title %}
             <h1 class="title">{{website_info.title}}</h1>
           {% else%}
-            <h1 class="title">Website blog title</h1>
+            <h1 class="title">Любителі собак</h1>
           {% endif %}
 
           {% if website_info.description %}
@@ -24,8 +24,7 @@
             </p>
           {% else %}
           <p>
-              Lorem ipsum began as scrambled, nonsensical Latin derived from
-              Cicero's 1st-century BC text De Finibus Bonorum et Malorum.
+              Зручна та інтерактивна платформи для обміну інформацією та досвідом щодо догляду, виховання, тренування та здоров'я ваших собак
             </p>
           {% endif %}
 
@@ -64,7 +63,7 @@
               {{featured_blog.content|truncatechars:200}}
             </p>
             <a class="learn" href="#"
-              >Learn more <span class="material-icons"> trending_flat </span></a
+              >Дізнатись більше <span class="material-icons"> trending_flat </span></a
             >
           </div>
         </div>
@@ -96,7 +95,7 @@
                             <p>{{post.author.first_name}}</p>
                             <small>
                             {% language 'uk' %}
-                            {{ post.last_updated|date:"l, d F Y" }}
+                            {{ post.last_updated|date:"F d, Y" }}
                             {% endlanguage %}
                             </small>
                           </div>
@@ -138,7 +137,7 @@
                             <p>{{post.author.first_name}}</p>
                             <small>
                             {% language 'uk' %}
-                            {{ post.last_updated|date:"l, d F Y" }}
+                            {{ post.last_updated|date:"F d, Y" }}
                             {% endlanguage %}
                             </small>
                           </div>

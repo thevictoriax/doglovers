@@ -39,14 +39,14 @@
           <a href="{% url 'all_bookmarked_posts' %}">Мої закладки</a>
           {% endif %}
           {% if user.is_authenticated %}
-          <a href="{% url 'all_liked_posts' %}">Мої вподобайки</a>
+          <a href="{% url 'all_liked_posts' %}">Мої вподобання</a>
           {% endif %}
         </div>
         <div class="action-btn">
         {% if user.is_authenticated %}
          <form method="post" action="{% url 'logout' %}"> 
         {% csrf_token %} 
-        <button type="submit" class="btn btn-scoundary">Logout</button> 
+        <button type="submit" class="btn btn-scoundary">Вийти</button> 
         </form> 
         {% else %}
           <a href="{% url 'login' %}"
@@ -72,7 +72,7 @@
             <img src="{% static 'app/images/doglovers.png' %}" alt="Logo" style="width: 60px; height: 55px;">
           </div>
           <div class="link">
-            <h2>Quick link</h2>
+            <h2>Навігація</h2>
             <div class="q-link">
               <a href="{% url 'index' %}">Головна</a>
               <a href="{% url 'about' %}">Про блог</a>
@@ -94,18 +94,18 @@
             </div>
           </div>
           <div class="news-signup">
-            <h2>Subscribe</h2>
+            <h2>Підписатись</h2>
             <div class="newsletter">
               <form method="POST">
                 <input
                   type="email"
                   name="email"
                   maxlength="100"
-                  placeholder="Enter your email"
+                  placeholder="Введіть свій email..."
                   required=""
                   id="id_email"
                 />
-                <button class="btn btn-primary">Subscribe</button>
+                <button class="btn btn-primary">Підписатись</button>
               </form>
             </div>
           </div>

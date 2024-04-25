@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Blog | The Super Blog{% endblock title %}
+{% load i18n %}
+{% block title %}Любителі собак | {{post.title}}{% endblock title %}
 {% load static %}
 
 {% block content %}
@@ -11,7 +12,7 @@
               <div class="top flex">
                 <div class="page-name">
   <a href="javascript:history.back()" class="learn">
-    <span class="material-icons">keyboard_return</span> Go back
+    <span class="material-icons">keyboard_return</span> Повернутись назад
   </a>
   <h1>Пост</h1>
 </div>
@@ -26,11 +27,15 @@
                 <div class="timeline">
                   <div class="track">
                     <i class="uil uil-clock"></i>
-                    <p class="time">{{post.last_updated|date}}</p>
+                    <p class="time">
+                    {% language 'uk' %}
+                    {{ post.last_updated|date:"F d, Y" }}
+                    {% endlanguage %}
+                    </p>
                   </div>
                   <div class="track">
                     <i class="uil uil-users-alt"></i>
-                    <p class="view-count">{{post.view_count}} view{{post.view_count|pluralize}}</p>
+                    <p class="view-count">{{post.view_count}} </p>
                   </div>
                   <div class="track">
                     {% if user.is_authenticated %}
@@ -40,19 +45,19 @@
                       {% if is_bookmarked %}
                       <button type="submit" class="btn btn-info">
                         <i class="fa-solid fa-bookmark"></i>
-                        <p class="bookmark">Remove Bookmark</p>
+                        <p class="bookmark">Забрати із закладок</p>
                       </button>
                       {% else %}
                       <button type="submit" class="btn btn-info">
                         <i class="uil uil-bookmark-full"></i>
-                        <p class="bookmark">Bookmark</p>
+                        <p class="bookmark">У закладки</p>
                       </button>
                       {% endif %}
                     </form>
                     {% else %}
                     <a class="track" href="{% url 'login' %}">
                       <i class="uil uil-bookmark-full"></i>
-                      <p class="bookmark">Bookmark</p>
+                      <p class="bookmark">У закладки</p>
                     </a><br>
                     {% endif %}
                   </div>
@@ -130,7 +135,9 @@
                         </div>
                         <div class="details">
                           <p>{{comment.name}}</p>
-                          <small>{{comment.date|date}}</small>
+                          <small>{% language 'uk' %}
+                            {{ comment.date|date:"F d, Y" }}
+                            {% endlanguage %}</small>
                         </div>
                       </div>
                       <div class="comment-sec-main">
@@ -141,13 +148,13 @@
                             </p>
                           </div>
                           <div class="reply">
-                            <button onclick="toggleDiv(this)">Reply</button>
+                            <button onclick="toggleDiv(this)">Відповісти</button>
                           </div>
                           <div class="comment-box" id="comment-reply-box">
-                            <h3>Reply to post</h3>
+                            <h3>Відповісти на коментар</h3>
                             <p>
-                              Your email address will not be published. Required fields
-                              are marked<span>*</span>
+                              Ваша електронна адреса не буде опублікована. Обов'язкові поля
+                               позначені
                             </p>
                             <form method="POST">
                               {% csrf_token %}
@@ -161,7 +168,7 @@
                               </div>
               
                               <button class="btn btn-primary rounded">
-                                Post Reply
+                                Відповідь
                               </button>
                             </form>
                           </div>  
@@ -176,7 +183,9 @@
                             </div>
                             <div class="details">
                               <p>{{reply.name}}</p>
-                              <small>{{reply.date|date}}</small>
+                              {% language 'uk' %}
+                            {{ reply.date|date:"F d, Y" }}
+                            {% endlanguage %}
                             </div>
                           </div>
                           <div class="comment">
@@ -196,10 +205,10 @@
                   </div>
                 </div>
                 <div class="comment-box">
-                  <h3>Leave a new comment to this post</h3>
+                  <h3>Залишити новий коментар під цим постом</h3>
                   <p>
-                    Your email address will not be published. Required fields
-                    are marked<span>*</span>
+                    Ваша електронна адреса не буде опублікована. Обов'язкові поля
+                               позначені
                   </p>
                   <form method="POST">
                     {% csrf_token %}
@@ -211,7 +220,7 @@
                       {{form.website}}
                     </div>
                     <button class="btn btn-primary rounded">
-                      Post comment
+                      Прокоментувати
                     </button>
                   </form>
                 </div>
@@ -223,7 +232,7 @@
           <!-- right layout -->
           <div class="right">
             <div class="block">
-              <h2 class="title2">Most recent</h2>
+              <h2 class="title2">Останні статті</h2>
               {% for post in recent_posts %}
               <div class="recent-post">
                 <div class="rounded-img">
@@ -243,7 +252,7 @@
             </div>
 
             <div class="block r-blog">
-              <h2 class="title2">Related Blogs</h2>
+              <h2 class="title2">Пов'язані статті</h2>
               {% for post in related_posts %}
               <!-- card -->
               <a href="{% url 'post_page' post.slug %}">
@@ -262,7 +271,9 @@
                       </div>
                       <div class="details">
                         <p>{{post.author.first_name}}</p>
-                        <small>{{post.last_updated|date}}</small>
+                        <small>{% language 'uk' %}
+                            {{ post.last_updated|date:"F d, Y" }}
+                            {% endlanguage %}</small>
                       </div>
                     </div>
                   </div>
@@ -271,8 +282,8 @@
               <!-- card end-->
               {% endfor %}    
             </div>
-            <div class="block">
-              <h2 class="title2">Top Author</h2>
+            {% comment %} <div class="block">
+              <h2 class="title2">Найпопулярніші автори</h2>
               {% for author in top_authors %}
               <div class="recent-post">
                 <div class="rounded-img">
@@ -282,16 +293,17 @@
                   <h3>
                     {{author.first_name}}
                   </h3>
-                  <a class="learn" href="{% url 'author_page' author.profile.slug %}"
-                    >Дізнатись більше
-                    <span class="material-icons"> trending_flat </span></a
-                  >
+                  <a class="learn" href="{% if author.profile.slug %}{% url 'author_page' author.profile.slug %}{% endif %}">
+    Дізнатись більше
+    <span class="material-icons"> trending_flat </span>
+</a>
+
                 </div>
               </div>
               {% endfor %}
-            </div>
+            </div> {% endcomment %}
             <div class="block">
-              <h2 class="title2">Top Tags</h2>
+              <h2 class="title2">Найпопулярніші теги</h2>
               <div class="blog-tags">
               {% for tag in tags %}
                 <a class="tag" href="{% url 'tag_page' tag.slug %}">{{tag.name}}</a>

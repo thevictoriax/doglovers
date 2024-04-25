@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
-{% block title %}Blog | Login{% endblock title %}
+{% load static %}
+{% block title %}Любителі собак | Авторизуватись{% endblock title %}
 {% block content %}
 
 <form action="{% url 'login' %}" method="post" class="form">
     {% csrf_token %}
       <center>
-        <div class="logo f-logo">
-          <i class="fa-brands fa-blogger"></i>
-        </div>
+        <a class="logo" href="{% url 'index' %}">
+          <img src="{% static 'app/images/doglovers.png' %}" alt="Logo" style="width: 60px; height: 55px;">
+        </a>
 
         {% if form.non_field_errors %}
           {% for error in form.non_field_errors %}
@@ -35,9 +36,9 @@
           </div>
 
           <button class="btn btn-primary rounded" type="submit">
-            Login <span class="material-icons"> arrow_right_alt </span>
+            Авторизуватись <span class="material-icons"> arrow_right_alt </span>
           </button>
-          <p>Not have an account? <a href="{% url 'register' %}">Sign up</a></p>
+          <p>Не маєш акаунту? <a href="{% url 'register' %}">Зареєструватись</a></p>
         </div>
       </center>
     </form>
