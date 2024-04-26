@@ -129,13 +129,23 @@ def about(request):
 def register_user(request):
     form = NewUserForm()
     if request.method == "POST":
-        form = NewUserForm(request.POST)
+        form = NewUserForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.save()
+
+            # Check if a profile already exists for the user
+            if not Profile.objects.filter(user=user).exists():
+                # Creating a profile for the user
+                bio = form.cleaned_data.get('bio')
+                profile_image = request.FILES.get('profile_image')
+                profile = Profile.objects.create(user=user, bio=bio, profile_image=profile_image)
+
             login(request, user)
             return redirect("/")
     context = {'form':form}
     return render(request, 'registration/registration.html', context)
+
 
 def bookmark_post(request, slug):
     print("PRINT", request.POST.get('post_id'))

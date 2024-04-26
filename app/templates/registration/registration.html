@@ -1,94 +1,148 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}Любителі собак | Реєстрація{% endblock title %}
+
 {% block content %}
+<style>
+    .bio-field {
+        margin-bottom: 20px; /* Adjust the indentation as needed */
+    }
+</style>
 
-      <div class="container">
-        <div class="page-name">
-          <a href="javascript:history.back()" class="learn">
+<div class="container">
+    <div class="page-name">
+        <a href="javascript:history.back()" class="learn">
             <span class="material-icons">keyboard_return</span> Повернутись назад
-          </a>
-          <h1>Зареєструватись</h1>
-        </div>
-
-        <form method="post" class="form">
-           {% csrf_token %}
-          <center>
-            <a class="logo" href="{% url 'index' %}">
-          <img src="{% static 'app/images/doglovers.png' %}" alt="Logo" style="width: 60px; height: 55px;">
         </a>
+        <h1>Зареєструватись</h1>
+    </div>
 
-         {% if form.non_field_errors %}
-          {% for error in form.non_field_errors %}
-            <div class = "field-error">
-              <p>{{error}}</p>
+    <form method="post" class="form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <center>
+            <a class="logo" href="{% url 'index' %}">
+                <img src="{% static 'app/images/doglovers.png' %}" alt="Logo" style="width: 60px; height: 55px;">
+            </a>
+
+            {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+            <div class="field-error">
+                <p>{{error}}</p>
             </div>
-          {% endfor%}
-        {% endif %}
+            {% endfor %}
+            {% endif %}
 
             <div class="inputs">
-              <div>
-                <div class="search-bar s-active input">
-                  {{form.username}}
-                  <div class="animated-search">
-                    <i class="uil uil-user"></i>
-                  </div>
+                <!-- First Name Field -->
+                <div>
+                    <div class="search-bar s-active input">
+                        {{ form.first_name }}
+                        <div class="animated-search">
+                            <i class="uil uil-user"></i>
+                        </div>
+                    </div>
+                    {% if form.first_name.errors %}
+                    <div class="field-error">
+                        <p>{{ form.first_name.errors.as_text }}</p>
+                    </div>
+                    {% endif %}
                 </div>
-                {% if form.username.errors %}
-                <div class="field-error">
-                  <p>{{form.username.errors.as_text}}</p>
-                </div>
-                {% endif %}
-              </div>
 
-              <div>
-                <div class="search-bar s-active input">
-                  {{form.email}}
-                  <div class="animated-search">
-                    <i class="uil uil-envelope-alt"></i>
-                  </div>
+                <!-- Last Name Field -->
+                <div>
+                    <div class="search-bar s-active input">
+                        {{ form.last_name }}
+                        <div class="animated-search">
+                            <i class="uil uil-user"></i>
+                        </div>
+                    </div>
+                    {% if form.last_name.errors %}
+                    <div class="field-error">
+                        <p>{{ form.last_name.errors.as_text }}</p>
+                    </div>
+                    {% endif %}
                 </div>
-                {% if form.email.errors %}
-                <div class="field-error">
-                  <p>{{form.email.errors.as_text}}</p>
+                <div>
+                    <div class="search-bar s-active input">
+                        {{form.username}}
+                        <div class="animated-search">
+                            <i class="uil uil-user"></i>
+                        </div>
+                    </div>
+                    {% if form.username.errors %}
+                    <div class="field-error">
+                        <p>{{form.username.errors.as_text}}</p>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-              </div>
 
-              <div>
-                <div class="search-bar s-active input">
-                  {{form.password1}}
-                  <div class="animated-search">
-                    <i class="uil uil-key-skeleton"></i>
-                  </div>
+                <div>
+                    <div class="search-bar s-active input">
+                        {{form.email}}
+                        <div class="animated-search">
+                            <i class="uil uil-envelope-alt"></i>
+                        </div>
+                    </div>
+                    {% if form.email.errors %}
+                    <div class="field-error">
+                        <p>{{form.email.errors.as_text}}</p>
+                    </div>
+                    {% endif %}
                 </div>
-               {% if form.password1.errors %}
-                <div class="field-error">
-                  <p>{{form.password1.errors.as_text}}</p>
+
+                <div>
+                    <div class="search-bar s-active input">
+                        {{form.password1}}
+                        <div class="animated-search">
+                            <i class="uil uil-key-skeleton"></i>
+                        </div>
+                    </div>
+                    {% if form.password1.errors %}
+                    <div class="field-error">
+                        <p>{{form.password1.errors.as_text}}</p>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-              </div>
-              <div>
-                <div class="search-bar s-active input">
-                  {{form.password2}}
-                  <div class="animated-search">
-                    <i class="uil uil-key-skeleton"></i>
-                  </div>
+                <div>
+                    <div class="search-bar s-active input">
+                        {{form.password2}}
+                        <div class="animated-search">
+                            <i class="uil uil-key-skeleton"></i>
+                        </div>
+                    </div>
+                    {% if form.password2.errors %}
+                    <div class="field-error">
+                        <p>{{form.password2.errors.as_text}}</p>
+                    </div>
+                    {% endif %}
                 </div>
-                {% if form.password2.errors %}
-                <div class="field-error">
-                  <p>{{form.password2.errors.as_text}}</p>
+               <!-- Bio Field -->
+<div class="bio-field" style="margin-top: 30px;">
+    {{ form.bio }}
+    {% if form.bio.errors %}
+    <div class="field-error">
+        <p>{{form.bio.errors.as_text}}</p>
+    </div>
+    {% endif %}
+</div>
+
+                <!-- Profile Image Field -->
+                <div>
+                    <input type="file" name="profile_image" id="profile_image" accept="image/*">
+                    {% if form.profile_image.errors %}
+                    <div class="field-error">
+                        <p>{{form.profile_image.errors.as_text}}</p>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-              </div>
-              <button class="btn btn-primary rounded">
-                Зареєструватись <span class="material-icons"> arrow_right_alt </span>
-              </button>
-              <center>
-                <p>Вже зареєстрований? <a href="login.html">Авторизуватись</a></p>
-              </center>
+                <button class="btn btn-primary rounded">
+                    Зареєструватись <span class="material-icons"> arrow_right_alt </span>
+                </button>
+                <center>
+                    <p>Вже зареєстрований? <a href="login.html">Авторизуватись</a></p>
+                </center>
             </div>
-          </center>
-        </form>
-      </div>
+        </center>
+    </form>
+</div>
 {% endblock content %}

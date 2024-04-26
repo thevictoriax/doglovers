@@ -4,15 +4,25 @@ from django.contrib.auth.models import User
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_image= models.ImageField(null=True, blank=True, upload_to="images/")
+    profile_image = models.ImageField(null=True, blank=True, upload_to="images/")
     slug = models.SlugField(max_length=200, unique=True)
     bio = models.CharField(max_length=200)
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.slug = slugify(self.user.username)
+            # Generate unique slug based on username
+            self.slug = self.generate_unique_slug(self.user.username)
         return super(Profile, self).save(*args, **kwargs)
-    
+
+    def generate_unique_slug(self, username):
+        slug = slugify(username)
+        unique_slug = slug
+        counter = 1
+        while Profile.objects.filter(slug=unique_slug).exists():
+            unique_slug = f"{slug}-{counter}"
+            counter += 1
+        return unique_slug
+
     def __str__(self):
         return self.user.first_name
 
