@@ -60,7 +60,7 @@
               {{featured_blog.title}}
             </h1>
             <p class="des">
-              {{featured_blog.content|truncatechars:200}}
+              {{featured_blog.content|safe |truncatechars:200}}
             </p>
             <a class="learn" href="#"
               >Дізнатись більше <span class="material-icons"> trending_flat </span></a

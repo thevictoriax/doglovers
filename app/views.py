@@ -1,11 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from app.models import Post, Comments, Tag, Profile, WebsiteMeta
-from app.forms import CommentForm, SubscribeForm, NewUserForm
+from app.forms import CommentForm, SubscribeForm, NewUserForm, PostForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def index(request):
@@ -169,3 +170,29 @@ def all_liked_posts(request):
     all_liked_posts = Post.objects.filter(likes = request.user)
     context = {'all_liked_posts':all_liked_posts}
     return render(request, 'app/all_liked_posts.html', context)
+
+@login_required
+def add_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user  # Assign the author field with the authenticated user
+            post.save()
+            return HttpResponseRedirect(reverse('post_page', kwargs={'slug': post.slug}))
+    else:
+        form = PostForm()
+    return render(request, 'app/add_post.html', {'form': form})
+
+@login_required
+def delete_post(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    
+    # Check if the logged-in user is the author of the post
+    if request.user == post.author:
+        post.delete()
+        return HttpResponseRedirect(reverse('index'))  # Redirect to home page or any other desired URL after deletion
+    else:
+        # Handle unauthorized access (Optional: You may raise a PermissionDenied exception or show an error message)
+        return HttpResponseRedirect(reverse('post_page', args=[str(slug)]))
+

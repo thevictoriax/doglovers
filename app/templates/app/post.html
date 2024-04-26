@@ -109,6 +109,14 @@
                           <span>{{comments_count}}</span>
                         </div>
                       </div>
+                     {% if user.is_authenticated and post.author == user %}
+    <form action="{% url 'delete_post' post.slug %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm rounded">Видалити статтю</button>
+    </form>
+{% endif %}
+
+
                       {% comment %} <div class="share">
                         <div class="social">
                           <a href="#">

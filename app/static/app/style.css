@@ -95,9 +95,12 @@ header .container {
   gap: 1rem;
 }
 
-.btn span {
-  color: white;
+.btn-sm {
+  height: 3rem; /* Adjust height to fit content */
+  padding: 0.3rem; /* Adjust padding for smaller size */
+  font-size: 1.2rem; /* Decrease font size for smaller size */
 }
+
 
 .btn-primary {
   background: var(--green);
@@ -1065,3 +1068,5 @@ main {
 .reply button {
   background: transparent;
 }
+
+

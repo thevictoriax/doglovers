@@ -1,0 +1,33 @@
+<!-- add_post.html -->
+
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Любителі собак | Додати статтю{% endblock title %}
+
+{% block content %}
+<div class="container">
+<a href="javascript:history.back()" class="learn">
+    <span class="material-icons">keyboard_return</span> Повернутись назад
+  </a>
+  <h1 class="page-title">Додати новий пост</h1>
+  <div class="post-form">
+    <form method="post" enctype="multipart/form-data" class="form">
+      {% csrf_token %}
+      <div class="form-group">
+    {{ form.media }}
+    {{form.as_p}}
+        <!-- Displaying any form errors for the content field -->
+        {{ form.content.errors }}
+      </div>
+      <button type="submit" class="btn btn-primary">Опублікувати</button>
+    </form>
+  </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'ckeditor/ckeditor.js' %}"></script>
+{% endblock scripts %}

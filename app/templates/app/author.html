@@ -116,9 +116,9 @@
                   <h3>
                     {{author.first_name}}
                   </h3>
-                  <a class="learn" href="{% url 'author_page' author.profile.slug %}">Learn more
+                  {% comment %} <a class="learn" href="{% url 'author_page' author.profile.slug %}">Learn more
                     <span class="material-icons"> trending_flat </span></a
-                  >
+                  > {% endcomment %}
                 </div>
               </div>
               {% endfor %}

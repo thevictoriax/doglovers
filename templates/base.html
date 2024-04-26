@@ -1,4 +1,9 @@
 {% load static %}
+
+{% block extrahead %}
+<script>window.CKEDITOR_BASEPATH = '/static/ckeditor/ckeditor/';</script>
+{{block.super}}
+{% endblock %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -40,6 +45,9 @@
           {% endif %}
           {% if user.is_authenticated %}
           <a href="{% url 'all_liked_posts' %}">Мої вподобання</a>
+          {% endif %}
+          {% if user.is_authenticated %}
+          <a href="{% url 'add_post' %}">Додати пост</a>
           {% endif %}
         </div>
         <div class="action-btn">
@@ -129,5 +137,7 @@
       </div>
     </footer>
     <script src="{% static 'app/url.js' %}" id="url"></script>
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
   </body>
 </html>

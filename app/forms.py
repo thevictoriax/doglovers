@@ -5,6 +5,11 @@ from app.models import Comments, Subscribe
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from app.models import Post,  Tag
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
+from ckeditor.widgets import CKEditorWidget
+from django.utils.text import slugify
+
 
 class CommentForm(forms.ModelForm):
     class Meta:
@@ -61,4 +66,23 @@ class NewUserForm(UserCreationForm):
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError("Паролі не збігаються")
         return password2
-        
+
+class PostForm(forms.ModelForm):
+    title = forms.CharField(label="Заголовок")
+    content = forms.CharField(label="Зміст", widget=CKEditorWidget())
+    image = forms.ImageField(label="Зображення")
+    tags = forms.ModelMultipleChoiceField(label="Теги", queryset=Tag.objects.all(), widget=forms.CheckboxSelectMultiple)
+    slug = forms.CharField(widget=forms.HiddenInput(), required=False)  
+    # author_username = forms.CharField(widget=forms.HiddenInput())  
+
+
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'image', 'tags']
+    
+    def save(self, commit=True):
+        instance = super(PostForm, self).save(commit=False)
+        instance.slug = slugify(instance.title)  # Generate slug based on title
+        if commit:
+            instance.save()
+        return instance
