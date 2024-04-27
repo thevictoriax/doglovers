@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Любителі собак | Усі статті{% endblock title %}
+{% load i18n %}
+{% block title %}Любителі собак | Усі дописи{% endblock title %}
 {% block content %}
 
 <main>
@@ -7,25 +8,67 @@
     <div class="page-top">
       <div class="top flex">
         <div class="page-name">
-  <a href="javascript:history.back()" class="learn">
-    <span class="material-icons">keyboard_return</span> Повернутись назад
-  </a>
-  <h1>Усі статті</h1>
-</div>
+          <a href="javascript:history.back()" class="learn">
+            <span class="material-icons">keyboard_return</span> Повернутись назад
+          </a>
+          <h1>Усі дописи</h1>
+        </div>
       </div>
     </div>
+    <section class="sp">
+      <div class="container">
+        <div class="grid">
+          {% for post in all_posts %}
+            <!-- card -->
+            <a href="{% url 'post_page' post.slug %}">
+              <div class="card">
+                <div class="post-img">
+                  <img src="{{post.image.url}}" alt="" />
+                  <div class="tag">{{post.tags.all.0.name}}</div>
+                </div>
+                <div class="card-content">
+                  <h3>{{post.title}}</h3>
+                  <div class="author">
+                    <div class="profile-pic">
+                      <img src="{{post.author.profile.profile_image.url}}" alt="" />
+                    </div>
+                    <div class="details">
+                      <p>{{post.author.first_name}}</p>
+                      <small>{% language 'uk' %}
+                        {{ post.last_updated|date:"d F Y" }}
+                      {% endlanguage %}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+            <!-- card end-->
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <span class="current">
+        {% trans "Сторінка" %} {{ all_posts.number }} {% trans "з" %} {{ all_posts.paginator.num_pages }}.
+      </span>
+
+      <div class="step-links">
+        {% if all_posts.has_previous %}
+          <a href="?page=1">&laquo; {% trans "Перша" %}</a>
+          <a href="?page={{ all_posts.previous_page_number }}">{% trans "Попередня" %}</a>
+        {% endif %}
+
+        {% if all_posts.has_next %}
+          <a href="?page={{ all_posts.next_page_number }}">{% trans "Наступна" %}</a>
+          <a href="?page={{ all_posts.paginator.num_pages }}">{% trans "     Остання" %} &raquo;</a>
+        {% endif %}
+      </div>
+    </div>
+    <!-- End Pagination -->
+
   </div>
 </main>
-<section class="sp">
-  <div class="container">
-    <div class="blog-tags">
-    {% for post in all_posts  %}
-    <p class="tag">
-      <a style="color: white;" href="{% url 'post_page' post.slug %}">{{post.title}}</a>
-    </p>
-    {% endfor %}
-  </div>
-  </div>
-</section>
 
 {% endblock content %}

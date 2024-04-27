@@ -14,7 +14,7 @@
   <a href="javascript:history.back()" class="learn">
     <span class="material-icons">keyboard_return</span> Повернутись назад
   </a>
-  <h1>Пост</h1>
+  <h1>Допис</h1>
 </div>
               </div>
             </div>
@@ -112,7 +112,7 @@
                      {% if user.is_authenticated and post.author == user %}
     <form action="{% url 'delete_post' post.slug %}" method="post">
         {% csrf_token %}
-        <button type="submit" class="btn btn-sm rounded">Видалити статтю</button>
+        <button type="submit" class="btn btn-sm rounded">Видалити допис</button>
     </form>
 {% endif %}
 
@@ -213,7 +213,7 @@
                   </div>
                 </div>
                 <div class="comment-box">
-                  <h3>Залишити новий коментар під цим постом</h3>
+                  <h3>Залишити новий коментар під цим дописом</h3>
                   <p>
                     Ваша електронна адреса не буде опублікована. Обов'язкові поля
                                позначені
@@ -240,7 +240,7 @@
           <!-- right layout -->
           <div class="right">
             <div class="block">
-              <h2 class="title2">Останні статті</h2>
+              <h2 class="title2">Останні дописи</h2>
               {% for post in recent_posts %}
               <div class="recent-post">
                 <div class="rounded-img">
@@ -260,7 +260,7 @@
             </div>
 
             <div class="block r-blog">
-              <h2 class="title2">Пов'язані статті</h2>
+              <h2 class="title2">Пов'язані дописи</h2>
               {% for post in related_posts %}
               <!-- card -->
               <a href="{% url 'post_page' post.slug %}">
@@ -290,8 +290,8 @@
               <!-- card end-->
               {% endfor %}    
             </div>
-            {% comment %} <div class="block">
-              <h2 class="title2">Найпопулярніші автори</h2>
+            <div class="block">
+              <h2 class="title2">Топ авторів</h2>
               {% for author in top_authors %}
               <div class="recent-post">
                 <div class="rounded-img">
@@ -309,9 +309,9 @@
                 </div>
               </div>
               {% endfor %}
-            </div> {% endcomment %}
+            </div> 
             <div class="block">
-              <h2 class="title2">Найпопулярніші теги</h2>
+              <h2 class="title2">Популярні теги</h2>
               <div class="blog-tags">
               {% for tag in tags %}
                 <a class="tag" href="{% url 'tag_page' tag.slug %}">{{tag.name}}</a>

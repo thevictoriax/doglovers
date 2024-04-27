@@ -62,9 +62,11 @@
             <p class="des">
               {{featured_blog.content|safe |truncatechars:200}}
             </p>
-            <a class="learn" href="#"
-              >Дізнатись більше <span class="material-icons"> trending_flat </span></a
-            >
+            <a class="learn" href="{% url 'post_page' featured_blog.slug %}">
+                    Дізнатись більше
+                    <span class="material-icons">trending_flat</span>
+                </a>
+            
           </div>
         </div>
         </a>
@@ -73,7 +75,7 @@
     {% endif %}
     <section class="sp">
       <div class="container">
-        <h1 class="sec-title">Найпопулярніші статті</h1>
+        <h1 class="sec-title">Популярні дописи</h1>
         <div class="grid-3">
             {% for post in top_posts %}
           <!-- card -->
@@ -115,7 +117,7 @@
     </section>
     <section class="sp">
       <div class="container">
-        <h1 class="sec-title">Нові статті</h1>
+        <h1 class="sec-title">Нові дописи</h1>
         <div class="grid-3">
             {% for post in recent_posts %}
           <!-- card -->

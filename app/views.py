@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.db.models import Count
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 def index(request):
@@ -170,11 +171,34 @@ def all_bookmarked_posts(request):
     context = {'all_bookmarked_posts':all_bookmarked_posts}
     return render(request, 'app/all_bookmarked_posts.html', context)
 
-
 def all_posts(request):
     all_posts = Post.objects.all()
-    context = {'all_posts':all_posts}
-    return render(request, 'app/all_posts.html', context)
+    paginator = Paginator(all_posts, 6)  # Number of posts per page
+    page = request.GET.get('page')
+    try:
+        all_posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        all_posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        all_posts = paginator.page(paginator.num_pages)
+    return render(request, 'app/all_posts.html', {'all_posts': all_posts})
+
+@login_required
+def user_posts(request):
+    user_posts = Post.objects.filter(author=request.user)
+    paginator = Paginator(user_posts, 6)  # Number of posts per page
+    page = request.GET.get('page')
+    try:
+        user_posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        user_posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        user_posts = paginator.page(paginator.num_pages)
+    return render(request, 'app/user_posts.html', {'user_posts': user_posts})
 
 def all_liked_posts(request):
     all_liked_posts = Post.objects.filter(likes = request.user)
@@ -189,6 +213,7 @@ def add_post(request):
             post = form.save(commit=False)
             post.author = request.user  # Assign the author field with the authenticated user
             post.save()
+            form.save_m2m()  # Save many-to-many fields, like tags
             return HttpResponseRedirect(reverse('post_page', kwargs={'slug': post.slug}))
     else:
         form = PostForm()

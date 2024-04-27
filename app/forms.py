@@ -9,6 +9,8 @@ from app.models import Post,  Tag, Profile
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from ckeditor.widgets import CKEditorWidget
 from django.utils.text import slugify
+from django.utils.translation import gettext as _
+from unidecode import unidecode
 
 
 class CommentForm(forms.ModelForm):
@@ -109,7 +111,9 @@ class PostForm(forms.ModelForm):
     
     def save(self, commit=True):
         instance = super(PostForm, self).save(commit=False)
-        instance.slug = slugify(instance.title)  # Generate slug based on title
+        translated_title = _(instance.title)  # Translate the title
+        slug = slugify(unidecode(translated_title))  # Generate slug based on translated title
+        instance.slug = slug
         if commit:
             instance.save()
         return instance

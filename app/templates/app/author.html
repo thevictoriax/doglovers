@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block title %}Любителі собак | {{profile.user.first_name}}{% endblock title %}
 {% block content %}
       <div class="container">
@@ -11,7 +12,7 @@
                   <a href="javascript:history.back()" class="learn">
             <span class="material-icons">keyboard_return</span> Повернутись назад
           </a>
-                  <h1>Author</h1>
+                  <h1>Автор</h1>
                 </div>
               </div>
             </div>
@@ -26,7 +27,7 @@
             </center>
             <section class="sp">
               <div class="container">
-                <h1 class="sec-title">Top Posts</h1>
+                <h1 class="sec-title">Популярні дописи</h1>
                 <div class="grid-2 blog">
                     {% for post in top_posts %}
                   <!-- card -->
@@ -46,7 +47,10 @@
                           </div>
                           <div class="details">
                             <p>{{post.author.first_name}}</p>
-                            <small>{{post.last_updated|date}}</small>
+                            <small>{% language 'uk' %}
+                            {{post.last_updated|date:"F d, Y"}}
+                            {% endlanguage %}
+                            </small>
                           </div>
                         </div>
                       </div>
@@ -54,14 +58,14 @@
                   </a>
                   <!-- card end-->
                   {% empty %}
-                  <p>Nothing to show here</p>
+                  <p>Автор ще не створив дописів</p>
                   {% endfor %}
                 </div>
               </div>
             </section>
             <section class="sp">
               <div class="container">
-                <h1 class="sec-title">Recent Posts</h1>
+                <h1 class="sec-title">Нові дописи</h1>
                 <div class="grid-3 blog-grid">
                     {% for post in recent_posts %}
                   <!-- card -->
@@ -81,7 +85,10 @@
                           </div>
                           <div class="details">
                             <p>{{post.author.first_name}}</p>
-                            <small>{{post.last_updated|date}}</small>
+                            <small>{% language 'uk' %}
+                            {{post.last_updated|date:"F d, Y"}}
+                            {% endlanguage %}
+                            </small>
                           </div>
                         </div>
                       </div>
@@ -89,16 +96,16 @@
                   </a>
                   <!-- card end-->
                   {% empty %}
-                  <p>Nothing to show here</p>
+                  <p>Автор ще не створив дописів</p>
                   {% endfor %}
-                </div>
+                {% comment %} </div>
                 <center>
                   <button class="btn btn-primary rounded view">
-                    View more
+                    Побачити більше
                     <span class="material-icons"> trending_flat </span>
                   </button>
                 </center>
-              </div>
+              </div> {% endcomment %}
             </section>
           </div>
           <!-- left layout end -->
@@ -106,7 +113,7 @@
           <!-- right layout -->
           <div class="right">
             <div class="block">
-              <h2 class="title2">Top Authors</h2>
+              <h2 class="title2">Топ авторів</h2>
               {% for author in top_authors %}
               <div class="recent-post other-author">
                 <div class="rounded-img">
@@ -116,9 +123,9 @@
                   <h3>
                     {{author.first_name}}
                   </h3>
-                  {% comment %} <a class="learn" href="{% url 'author_page' author.profile.slug %}">Learn more
+                  <a class="learn" href="{% url 'author_page' author.profile.slug %}">Дізнатись більше
                     <span class="material-icons"> trending_flat </span></a
-                  > {% endcomment %}
+                  > 
                 </div>
               </div>
               {% endfor %}

@@ -26,6 +26,8 @@
       href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
       rel="stylesheet"
     />
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/x-icon">
 
     <title>{% block title %}Blog{% endblock title %}</title>
   </head>
@@ -39,7 +41,7 @@
         <div class="links">
           <a href="{% url 'index' %}">Головна</a>
           <a href="{% url 'about' %}">Про блог</a>
-          <a href="{% url 'all_posts' %}">Усі статті</a>
+          <a href="{% url 'all_posts' %}">Усі дописи</a>
           {% if user.is_authenticated %}
           <a href="{% url 'all_bookmarked_posts' %}">Мої закладки</a>
           {% endif %}
@@ -47,7 +49,10 @@
           <a href="{% url 'all_liked_posts' %}">Мої вподобання</a>
           {% endif %}
           {% if user.is_authenticated %}
-          <a href="{% url 'add_post' %}">Додати пост</a>
+          <a href="{% url 'user_posts' %}">Мої дописи</a>
+          {% endif %}
+          {% if user.is_authenticated %}
+          <a href="{% url 'add_post' %}">Додати допис</a>
           {% endif %}
         </div>
         <div class="action-btn">
@@ -84,7 +89,7 @@
             <div class="q-link">
               <a href="{% url 'index' %}">Головна</a>
               <a href="{% url 'about' %}">Про блог</a>
-              <a href="{% url 'all_posts' %}">Усі статті</a>
+              <a href="{% url 'all_posts' %}">Усі дописи</a>
             </div>
           </div>
           <div class="link">
