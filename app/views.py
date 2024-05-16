@@ -76,11 +76,15 @@ def post_page(request, slug):
                 return HttpResponseRedirect(reverse('post_page', kwargs={'slug':slug}))
 
     comments_count = comments.count()
-    if post.view_count is None:
-        post.view_count = 1
-    else:
-        post.view_count = post.view_count + 1
-    post.save(update_fields=['view_count'])
+    # Check if the user has viewed the post
+    if 'viewed_posts' not in request.session:
+        request.session['viewed_posts'] = []
+    
+    if post.id not in request.session['viewed_posts']:
+        post.view_count += 1
+        post.save(update_fields=['view_count'])
+        request.session['viewed_posts'].append(post.id)
+        request.session.modified = True
     
     # sidebar
     recent_posts= Post.objects.exclude(id=post.id).order_by('-last_updated')[0:3]
