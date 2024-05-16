@@ -98,11 +98,12 @@
                 {% endfor %}
                 </div>
                 <center>
-                  <button class="btn btn-primary rounded view">
-                    Побачити більше
-                    <span class="material-icons"> trending_flat </span>
-                  </button>
-                </center>
+                <a href="{% url 'tag_posts' tag.slug %}" class="btn btn-primary rounded view">
+                  Побачити більше
+                  <span class="material-icons"> trending_flat </span>
+                </a>
+              </center>
+
               </div>
             </section>
           </div>

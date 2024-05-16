@@ -80,7 +80,7 @@ def post_page(request, slug):
         post.view_count = 1
     else:
         post.view_count = post.view_count + 1
-    post.save()
+    post.save(update_fields=['view_count'])
     
     # sidebar
     recent_posts= Post.objects.exclude(id=post.id).order_by('-last_updated')[0:3]
@@ -231,3 +231,17 @@ def delete_post(request, slug):
         # Handle unauthorized access (Optional: You may raise a PermissionDenied exception or show an error message)
         return HttpResponseRedirect(reverse('post_page', args=[str(slug)]))
 
+def tag_posts(request, slug):
+    tag = get_object_or_404(Tag, slug=slug)
+    tag_posts = Post.objects.filter(tags=tag)
+    paginator = Paginator(tag_posts, 6)  # Number of posts per page
+    page = request.GET.get('page')
+    try:
+        tag_posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        tag_posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        tag_posts = paginator.page(paginator.num_pages)
+    return render(request, 'app/tag_posts.html', {'tag_posts': tag_posts, 'tag': tag})
