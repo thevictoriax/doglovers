@@ -16,26 +16,26 @@ from unidecode import unidecode
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comments
-        fields = {'content', 'email', 'name', 'website'}
+        fields = {'content', 'email', 'name'}
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['content'].widget.attrs['placeholder'] = 'Напишіть свій коментар...'
         self.fields['email'].widget.attrs['placeholder'] = 'Електронна пошта'
         self.fields['name'].widget.attrs['placeholder'] = "Ім'я"
-        self.fields['website'].widget.attrs['placeholder'] = 'Веб-сайт'
 
 
 class SubscribeForm(forms.ModelForm):
     class Meta:
         model = Subscribe
-        fields = '__all__'
-        labels = {'email': _ ('')}
+        fields = ['email']
+        labels = {'email': ''}
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['email'].widget.attrs['placeholder'] = 'Введіть свій email...'
-
+        self.fields['email'].widget.attrs['class'] = 'form-control'
+        
 class NewUserForm(UserCreationForm):
     profile_image = forms.ImageField(label="Profile Image", required=False)
     bio = forms.CharField(label="Біографія", widget=forms.Textarea(attrs={'placeholder': 'Напишіть про себе...'}))  # Add profile image field
