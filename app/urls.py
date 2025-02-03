@@ -20,7 +20,8 @@ urlpatterns = [
    path('post/<slug:slug>/delete/', views.delete_post, name='delete_post'),
    path('add_post/', views.add_post, name='add_post'),  
    path('user-posts/', views.user_posts, name='user_posts'),
-   path('tag_posts/<slug:slug>', views.tag_posts, name='tag_posts')
+   path('tag_posts/<slug:slug>', views.tag_posts, name='tag_posts'),
+   path('map/', views.dog_walking_map, name='map')
 
 
 ]

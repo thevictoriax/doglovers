@@ -249,3 +249,6 @@ def tag_posts(request, slug):
         # If page is out of range, deliver last page of results.
         tag_posts = paginator.page(paginator.num_pages)
     return render(request, 'app/tag_posts.html', {'tag_posts': tag_posts, 'tag': tag})
+
+def dog_walking_map(request):
+    return render(request, 'app/map.html')

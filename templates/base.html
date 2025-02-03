@@ -10,7 +10,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="{% static 'app/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'app/style.css' %}" rel="stylesheet" />
     <link
       rel="stylesheet"
       href="https://unicons.iconscout.com/release/v2.1.6/css/unicons.css"
@@ -41,6 +41,7 @@
         <div class="links">
           <a href="{% url 'index' %}">Головна</a>
           <a href="{% url 'about' %}">Про блог</a>
+          <a href="{% url 'map' %}">Карта</a>
           <a href="{% url 'all_posts' %}">Усі дописи</a>
           {% if user.is_authenticated %}
           <a href="{% url 'all_bookmarked_posts' %}">Мої закладки</a>
