@@ -28,6 +28,20 @@
     />
     <!-- Favicon -->
     <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/x-icon">
+      <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- jQuery (потрібний для Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
     <title>{% block title %}Blog{% endblock title %}</title>
   </head>
@@ -40,9 +54,11 @@
         </a>
         <div class="links">
           <a href="{% url 'index' %}">Головна</a>
-          <a href="{% url 'about' %}">Про блог</a>
+{#          <a href="{% url 'about' %}">Про блог</a>#}
+          <a href="{% url 'list_dogs' %}">Мої собаки</a>
           <a href="{% url 'map' %}">Карта</a>
           <a href="{% url 'all_posts' %}">Усі дописи</a>
+            <a href="{% url 'user_calendar' %}">Календар</a>
           {% if user.is_authenticated %}
           <a href="{% url 'all_bookmarked_posts' %}">Мої закладки</a>
           {% endif %}

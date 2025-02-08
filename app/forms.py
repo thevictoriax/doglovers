@@ -5,12 +5,21 @@ from app.models import Comments, Subscribe
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from app.models import Post,  Tag, Profile
+from app.models import Post,  Tag, Profile, Dog
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from ckeditor.widgets import CKEditorWidget
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from unidecode import unidecode
+from django.core.exceptions import ValidationError
+from datetime import date
+import json
+from pathlib import Path
+
+BREEDS_FILE = Path(__file__).resolve().parent / "dog_breeds.json"
+with open(BREEDS_FILE, encoding="utf-8") as f:
+    DOG_BREEDS = json.load(f).get("dogs", [])
+    DOG_BREEDS_CHOICES = [(breed, breed) for breed in DOG_BREEDS]
 
 
 class CommentForm(forms.ModelForm):
@@ -117,3 +126,54 @@ class PostForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class DogForm(forms.ModelForm):
+    name = forms.CharField(label="Ім'я собаки", max_length=100)
+    breed = forms.ChoiceField(
+        label="Порода",
+        choices=DOG_BREEDS_CHOICES,  # Використовуємо список порід
+        required=True
+    )
+    birth_date = forms.DateField(
+        label="Дата народження",
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+        }),
+        required=True,
+        input_formats=['%Y-%m-%d']  # Дата у форматі, який очікує поле
+    )
+    weight = forms.FloatField(
+        label="Вага (кг)",
+        required=True,
+        widget=forms.NumberInput(attrs={'step': '0.1'})
+    )
+    profile_image = forms.ImageField(label="Зображення", required=False)  # Зображення не обов'язкове
+
+    class Meta:
+        model = Dog
+        fields = ['name', 'breed', 'birth_date', 'weight', 'profile_image']
+
+    def clean(self):
+        """
+        Загальна валідація (для всіх полів форми).
+        """
+        cleaned_data = super().clean()
+        birth_date = cleaned_data.get('birth_date')
+        weight = cleaned_data.get('weight')
+
+        errors = []
+
+        # Валідація поля "Дата народження"
+        if birth_date and birth_date > date.today():
+            errors.append("Дата народження не може бути в майбутньому.")
+
+        # Валідація поля "Вага"
+        if weight is not None and weight <= 0:
+            errors.append("Вага повинна бути додатньою.")
+
+        # Якщо є помилки, додаємо їх як non_field_errors
+        if errors:
+            raise ValidationError(errors)
+
+        return cleaned_data

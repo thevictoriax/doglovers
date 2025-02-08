@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      text-decoration: none;
+      border: none;
+      outline: none;
+      list-style: none;
+      font-family: "Montserrat", sans-serif;
+      color: var(--black);
+    }
+
+    :root {
+      --green: #436850;
+      --black: #404040;
+      --des: #555555;
+      --shadow: #ffffff1a 0px 1px 1px 0px inset, #32325d40 0px 50px 100px -20px,
+        #0000004d 0px 30px 60px -30px;
+      --shadow2: rgba(17, 12, 46, 0.084) 0px 48px 100px 0px;
+    }
+
+    html {
+      font-size: 62.5%;
+    }
+
+    img {
+      width: 100%;
+    }
+
+    .container {
+      max-width: 1220px;
+      margin: auto;
+      padding: 0 10px;
+    }
+
+    h1 {
+      font-size: 3rem;
+    }
+
+    /* Grid Layout for Dog Cards */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 3 columns */
+      gap: 2rem; /* Space between the rows and columns */
+      margin-top: 2rem;
+    }
+
+    /* Dog Card Styling */
+    .card {
+      background: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Smooth shadow for card */
+      border-radius: 1rem;
+      overflow: hidden; /* Prevent content from overflowing */
+      transition: transform 0.3s, background-color 0.3s ease-in-out; /* Hover transition */
+    }
+
+    .card:hover {
+      transform: translateY(-5px); /* Lifts the card slightly */
+      background: #f9f9f9; /* Light background on hover */
+    }
+
+    /* Image Section in Card */
+    .post-img {
+      height: 200px; /* Fixed height for dog images */
+      border-radius: 1rem 1rem 0 0;
+      overflow: hidden;
+    }
+
+    .post-img img {
+      width: 100%; /* Fill the full width of the card */
+      height: 100%; /* Fill the height */
+      object-fit: cover; /* Ensures the image is cropped appropriately */
+      object-position: center; /* Keeps the image focus */
+    }
+
+    /* Dog Card Content */
+    .card-content {
+      padding: 1.5rem;
+      text-align: center; /* Center-aligns the content */
+    }
+
+    .dog-name {
+      font-size: 5rem; /* Larger font for dog's name */
+      font-weight: 700; /* Bold text */
+      margin-bottom: 1rem;
+      color: var(--black);
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for emphasis */
+      transition: color 0.3s ease-in-out; /* Smooth transition for hover */
+    }
+
+    .card-content .dog-name {
+        font-size: 2rem !important; /* Збільшуємо шрифт та додаємо !important */
+        font-weight: bold;
+        color: var(--black);
+    }
+    .card:hover .dog-name {
+      color: var(--green); /* Highlights the dog's name on hover */
+    }
+
+    .card-content p {
+      font-size: 1.4rem;
+      color: #666; /* Secondary text color */
+      margin-bottom: 0.5rem; /* Space between details */
+      line-height: 1.6;
+    }
+
+    .card-content p strong {
+      color: var(--black); /* Highlight key labels in black */
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .grid-3 {
+        grid-template-columns: repeat(2, 1fr); /* Switch to 2 columns */
+      }
+
+      .dog-name {
+        font-size: 2.5rem; /* Slightly smaller for medium screens */
+      }
+    }
+
+    @media (max-width: 480px) {
+      .grid-3 {
+        grid-template-columns: 1fr; /* Single column layout */
+      }
+
+      .dog-name {
+        font-size: 2.2rem; /* Adjust size for mobile */
+      }
+    }
+
+/* Кнопка "Додати улюбленця" */
+.add-button {
+    margin-bottom: 2rem; /* Відступ між кнопкою і картками собак */
+    text-align: center; /* Центруємо кнопу */
+}
+
+.btn-add-pet {
+    display: inline-block;
+    background-color: var(--green); /* Використовуємо зелений колір */
+    color: white; /* Білий текст */
+    font-size: 1.6rem; /* Розмір тексту кнопки */
+    font-weight: 600; /* Напівжирний текст */
+    padding: 1rem 2rem; /* Відступи */
+    border-radius: 0.5rem; /* Закруглені кути */
+    box-shadow: var(--shadow); /* Додає тінь кнопці */
+    transition: background-color 0.3s ease-in-out; /* Анімація при наведенні */
+    text-align: center;
+    text-decoration: none; /* Прибираємо підкреслення */
+}
+
+.btn-add-pet:hover {
+    background-color: #355d43; /* Темніше зелене при наведенні */
+}

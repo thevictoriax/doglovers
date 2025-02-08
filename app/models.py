@@ -76,3 +76,44 @@ class WebsiteMeta(models.Model):
    about = models.TextField()
 
 
+class Dog(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="dogs")
+    name = models.CharField(max_length=100)
+    breed = models.CharField(max_length=100, blank=True, null=True)
+    birth_date = models.DateField(blank=True, null=True)
+    weight = models.FloatField(blank=True, null=True)  # Weight in kg
+    profile_image = models.ImageField(upload_to="dog_images/", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.owner.username})"
+
+# class Event(models.Model):
+#     EVENT_TYPES = [
+#         ('deworming', 'Таблетка від глистів'),
+#         ('ticks', 'Таблетка від кліщів'),
+#         ('vet_visit', 'Візит до ветеринара'),
+#         ('vaccination', 'Вакцинація'),
+#     ]
+#
+#     title = models.CharField(max_length=255)  # Назва події
+#     date = models.DateField()  # Дата події
+#     event_type = models.CharField(
+#         max_length=20,
+#         choices=EVENT_TYPES,
+#         default='vet_visit'
+#     )  # Тип події
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Власник
+#     dog = models.ForeignKey('Dog', on_delete=models.CASCADE)  # Звʼязок із собакою
+#     description = models.TextField(blank=True, null=True)  # Опис події
+#
+#     def __str__(self):
+#         return f"{self.title} - {self.date}"
+class Event(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, null=True, blank=True)
+    start = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "tblevents"

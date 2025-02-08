@@ -1,13 +1,23 @@
+from datetime import datetime
 from django.shortcuts import render, get_object_or_404, redirect
-from app.models import Post, Comments, Tag, Profile, WebsiteMeta
-from app.forms import CommentForm, SubscribeForm, NewUserForm, PostForm
-from django.http import HttpResponseRedirect
+from app.models import Post, Comments, Tag, Profile, WebsiteMeta, Dog, Event
+from app.forms import CommentForm, SubscribeForm, NewUserForm, PostForm, DogForm
+from django.http import HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib import messages
+import json
+from pathlib import Path
+
+BREEDS_FILE = Path(__file__).resolve().parent / "dog_breeds.json"
+with open(BREEDS_FILE, encoding="utf-8") as f:
+    DOG_BREEDS = json.load(f).get("dogs", [])
+    DOG_BREEDS_CHOICES = [(breed, breed) for breed in DOG_BREEDS]
 
 # Create your views here.
 def index(request):
@@ -252,3 +262,58 @@ def tag_posts(request, slug):
 
 def dog_walking_map(request):
     return render(request, 'app/map.html')
+
+@login_required
+def list_dogs(request):
+    # Fetch only the dogs for the logged-in user
+    dogs = Dog.objects.filter(owner=request.user)
+
+    context = {
+        'dogs': dogs,
+    }
+    return render(request, 'app/list_dogs.html', context)
+
+@login_required
+def add_dog(request):
+    if request.method == 'POST':
+        form = DogForm(request.POST, request.FILES)
+        if form.is_valid():
+            dog = form.save(commit=False)
+            dog.owner = request.user  # Прив'язуємо собаку до авторизованого користувача
+            dog.save()
+            return HttpResponseRedirect('my_dogs')
+    else:
+        form = DogForm()
+    return render(request, 'app/add_dog.html', {'form': form})
+
+@login_required
+def edit_dog(request, pk):
+    # Отримуємо об'єкт собаки за ідентифікатором (або повертаємо 404)
+    dog = get_object_or_404(Dog, pk=pk)
+
+    if request.method == "POST":
+        form = DogForm(request.POST, request.FILES, instance=dog)
+        if form.is_valid():
+            form.save()
+            return redirect('/my_dogs/')  # Повернення на сторінку з усіма собаками
+    else:
+        form = DogForm(instance=dog)  # Існуючі дані передаються у форму
+
+    return render(request, 'app/edit_dog.html', {'form': form, 'dog': dog})
+
+
+@login_required
+def delete_dog(request, pk):
+    # Get the dog object (or return a 404 if not found)
+    dog = get_object_or_404(Dog, pk=pk)
+
+    if request.method == 'POST':
+        # Delete the dog and provide feedback
+        dog_name = dog.name  # Save the dog's name for a success message
+        dog.delete()
+        messages.success(request, f'Анкету собаки "{dog_name}" успішно видалено.')
+        return redirect('/my_dogs/')  # Redirect to the list of dogs
+
+    # If not POST, return a 405 (method not allowed)
+    return HttpResponseNotAllowed(['POST'])
+

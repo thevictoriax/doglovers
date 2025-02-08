@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Додати нового улюбленця{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <a href="javascript:history.back()" class="learn">
+        <span class="material-icons">keyboard_return</span>
+        Повернутись назад
+    </a>
+
+    <h1 class="page-title">Додати нового улюбленця</h1>
+
+    <div class="dog-form">
+        <form method="post" enctype="multipart/form-data" class="form">
+            {% csrf_token %}
+            <!-- Рендеринг форми автоматично -->
+            <div class="form-group">
+                {{ form.as_p }}
+            </div>
+
+            <button type="submit" class="btn btn-primary">Додати улюбленця</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Застосування Select2 до всіх <select> у формі
+    $(document).ready(function () {
+        $('#id_breed').select2({
+            placeholder: "Оберіть породу...",
+            allowClear: true,
+             width: '100%'// Дозволяє очистити вибір
+        });
+    });
+</script>
+{% endblock content %}

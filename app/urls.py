@@ -21,7 +21,12 @@ urlpatterns = [
    path('add_post/', views.add_post, name='add_post'),  
    path('user-posts/', views.user_posts, name='user_posts'),
    path('tag_posts/<slug:slug>', views.tag_posts, name='tag_posts'),
-   path('map/', views.dog_walking_map, name='map')
+   path('map/', views.dog_walking_map, name='map'),
+   path('my_dogs/', views.list_dogs, name='list_dogs'),
+   path('add_dog', views.add_dog, name='add_dog'),
+   path('dog/<int:pk>/edit/', views.edit_dog, name='edit_dog'),
+   path('delete_dog/<int:pk>/', views.delete_dog, name='delete_dog'),
+
 
 
 ]

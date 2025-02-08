@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Редагувати інформацію про собаку{% endblock title %}
+{% block content %}
+<div class="container">
+    <!-- Back link to previous page -->
+    <a href="javascript:history.back()" class="learn">
+        <span class="material-icons">keyboard_return</span> Повернутись назад
+    </a>
+
+    <!-- Page Title -->
+    <h1 class="page-title">Редагувати інформацію про {{ dog.name }}</h1>
+
+    <div class="dog-form row justify-content-center">
+        <div class="col-md-6"> <!-- Встановлюємо ширину форми -->
+            <!-- Save Changes Form -->
+            <form method="post" enctype="multipart/form-data" class="form">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.as_p }}
+                </div>
+                <!-- Save Button -->
+                <button type="submit" class="btn btn-primary w-100 mb-2">Зберегти зміни</button>
+            </form>
+
+            <!-- Delete Profile Form -->
+            <form method="post" action="{% url 'delete_dog' dog.pk %}" onsubmit="return confirm('Ви впевнені, що хочете видалити цю анкету?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger w-100">Видалити анкету</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Застосовуємо Select2 до поля породи
+    $(document).ready(function() {
+        // Select2 для форми з породи
+        $('#id_breed').select2({
+            placeholder: "Оберіть породу...",
+            allowClear: true, // Дозволяє очищення вибору
+            width: '100%' // Ширина Select2 під налаштування форми
+        });
+    });
+</script>
+{% endblock content %}

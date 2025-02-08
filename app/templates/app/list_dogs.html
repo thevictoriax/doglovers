@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% block title %}Мої собаки{% endblock title %}
+{% block content %}
+<div class="container">
+  <div class="page-top">
+    <div class="top flex">
+      <div class="page-name">
+       <link rel="stylesheet" href="{% static 'app/dogstyle.css' %}" rel="stylesheet" />
+        <a href="javascript:history.back()" class="learn">
+          <span class="material-icons">keyboard_return</span> Повернутись назад
+        </a>
+        <h1>Мої собаки</h1>
+      </div>
+    </div>
+  </div>
+
+  <div class="add-button">
+    <a href="{% url 'add_dog' %}" class="btn-add-pet">Додати улюбленця
+    </a>
+  </div>
+  <!-- Section for Dogs -->
+  <section class="sp">
+    <div class="container">
+      <h1 class="sec-title">Профілі улюбленців</h1>
+      <div class="grid-3 blog-grid">
+        {% for dog in dogs %}
+        <!-- Dog card -->
+        <div class="card">
+          <div class="post-img">
+            {% if dog.profile_image %}
+            <img src="{{ dog.profile_image.url }}" alt="{{ dog.name }}" />
+            {% else %}
+            <img src="{% static 'images/default_dog.png' %}" alt="No Image" />
+            {% endif %}
+          </div>
+          <div class="card-content">
+             <h3 class="dog-name">{{ dog.name }}</h3>
+            <p><strong>Порода:</strong> {{ dog.breed|default:"Не вказано" }}</p>
+            <p><strong>Дата народження:</strong> {% language 'uk' %}
+                        {{ dog.birth_date|date:"d F Y" }}
+                      {% endlanguage %}</p>
+            <p><strong>Вага:</strong> {{ dog.weight|default:"N/A" }} кг</p>
+          <a href="{% url 'edit_dog' dog.id %}" class="btn btn-edit">Редагувати</a>
+          </div>
+        </div>
+        <!-- Dog card end -->
+        {% empty %}
+        <p>Поки що у вас немає зареєстрованих собак.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock content %}
+

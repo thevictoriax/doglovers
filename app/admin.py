@@ -1,5 +1,5 @@
 from django.contrib import admin
-from app.models import Post, Tag, Comments, Profile, WebsiteMeta
+from app.models import Post, Tag, Comments, Profile, WebsiteMeta, Dog
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django import forms
 
@@ -20,4 +20,5 @@ admin.site.register(Tag)
 admin.site.register(Comments)
 admin.site.register(Profile)
 admin.site.register(WebsiteMeta)
+admin.site.register(Dog)
 
