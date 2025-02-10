@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
    path('', views.index, name='index'), 
    path('post/<slug:slug>', views.post_page, name='post_page'),
@@ -26,6 +27,13 @@ urlpatterns = [
    path('add_dog', views.add_dog, name='add_dog'),
    path('dog/<int:pk>/edit/', views.edit_dog, name='edit_dog'),
    path('delete_dog/<int:pk>/', views.delete_dog, name='delete_dog'),
+   path('calendar/', views.user_calendar, name='user_calendar'),
+   path('all_events/', views.all_events, name='all_events'),
+   path('add_event/', views.add_event, name='add_event'),
+   path('update/', views.update, name='update'),
+   path('remove/', views.remove, name='remove'),
+
+
 
 
 

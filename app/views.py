@@ -317,3 +317,57 @@ def delete_dog(request, pk):
     # If not POST, return a 405 (method not allowed)
     return HttpResponseNotAllowed(['POST'])
 
+
+# Create your views here.
+def user_calendar(request):
+    all_events = Event.objects.all()
+    context = {
+        "events": all_events,
+    }
+    return render(request, 'app/user_calendar.html', context)
+
+
+def all_events(request):
+    all_events = Event.objects.all()
+    out = []
+    for event in all_events:
+        out.append({
+            'title': event.name,
+            'id': event.id,
+            'start': event.start.strftime("%m/%d/%Y, %H:%M:%S"),
+            'end': event.end.strftime("%m/%d/%Y, %H:%M:%S"),
+        })
+
+    return JsonResponse(out, safe=False)
+
+
+def add_event(request):
+    start = request.GET.get("start", None)
+    end = request.GET.get("end", None)
+    title = request.GET.get("title", None)
+    event = Event(name=str(title), start=start, end=end)
+    event.save()
+    data = {}
+    return JsonResponse(data)
+
+
+def update(request):
+    start = request.GET.get("start", None)
+    end = request.GET.get("end", None)
+    title = request.GET.get("title", None)
+    id = request.GET.get("id", None)
+    event = Event.objects.get(id=id)
+    event.start = start
+    event.end = end
+    event.name = title
+    event.save()
+    data = {}
+    return JsonResponse(data)
+
+
+def remove(request):
+    id = request.GET.get("id", None)
+    event = Event.objects.get(id=id)
+    event.delete()
+    data = {}
+    return JsonResponse(data)

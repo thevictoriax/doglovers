@@ -74,10 +74,10 @@
         </div>
         <div class="action-btn">
         {% if user.is_authenticated %}
-         <form method="post" action="{% url 'logout' %}"> 
-        {% csrf_token %} 
-        <button type="submit" class="btn btn-scoundary">Вийти</button> 
-        </form> 
+         <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-scoundary">Вийти</button>
+        </form>
         {% else %}
           <a href="{% url 'login' %}"
             ><button class="btn btn-scoundary">Авторизуватись</button></a
@@ -112,12 +112,12 @@
           <div class="link">
           {% if user.is_authenticated %}
             <h2>Улюблені</h2>
-            <div class="q-link">   
+            <div class="q-link">
               <a href="{% url 'all_bookmarked_posts' %}">Закладки</a>
               <a href="{% url 'all_liked_posts' %}">Вподобайки</a>
               {% else %}
               <h2>Приєднуйся до нас</h2>
-            <div class="q-link">   
+            <div class="q-link">
               <a href="{% url 'login' %}">Авторизуватись</a>
               <a href="{% url 'register' %}">Зареєструватись</a>
               {% endif %}
