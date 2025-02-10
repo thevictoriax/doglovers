@@ -13,6 +13,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 import json
 from pathlib import Path
+from django.utils.timezone import is_naive, make_aware
+import pytz
 
 BREEDS_FILE = Path(__file__).resolve().parent / "dog_breeds.json"
 with open(BREEDS_FILE, encoding="utf-8") as f:
@@ -318,7 +320,7 @@ def delete_dog(request, pk):
     return HttpResponseNotAllowed(['POST'])
 
 
-# Create your views here.
+@login_required
 def user_calendar(request):
     all_events = Event.objects.all()
     context = {
@@ -326,45 +328,69 @@ def user_calendar(request):
     }
     return render(request, 'app/user_calendar.html', context)
 
-
+@login_required
 def all_events(request):
     all_events = Event.objects.all()
     out = []
     for event in all_events:
+        # Перевіряємо, чи дата "наївна", і додаємо часовий пояс
+        start = event.start
+        end = event.end
+
+        if is_naive(start):
+            start = make_aware(start, pytz.timezone('UTC'))
+
+        if is_naive(end):
+            end = make_aware(end, pytz.timezone('UTC'))
+
+        # Використовуємо ISO формат
         out.append({
             'title': event.name,
             'id': event.id,
-            'start': event.start.strftime("%m/%d/%Y, %H:%M:%S"),
-            'end': event.end.strftime("%m/%d/%Y, %H:%M:%S"),
+            'start': start.isoformat(),  # Конвертуємо у ISO формат
+            'end': end.isoformat(),      # Конвертуємо у ISO формат
         })
 
     return JsonResponse(out, safe=False)
 
-
+@login_required
 def add_event(request):
     start = request.GET.get("start", None)
     end = request.GET.get("end", None)
     title = request.GET.get("title", None)
-    event = Event(name=str(title), start=start, end=end)
-    event.save()
+
+    # Конвертуємо строки в datetime (ISO8601 формат)
+    start = datetime.fromisoformat(start) if start else None
+    end = datetime.fromisoformat(end) if end else None
+
+    # Зберігаємо нову подію
+    if start and end and title:
+        event = Event(name=str(title), start=start, end=end)
+        event.save()
+
     data = {}
     return JsonResponse(data)
 
-
+@login_required
 def update(request):
     start = request.GET.get("start", None)
     end = request.GET.get("end", None)
     title = request.GET.get("title", None)
     id = request.GET.get("id", None)
+
+    # Перевіряємо, чи подія існує
     event = Event.objects.get(id=id)
-    event.start = start
-    event.end = end
-    event.name = title
+
+    # Конвертуємо строки в datetime
+    event.start = datetime.fromisoformat(start) if start else event.start
+    event.end = datetime.fromisoformat(end) if end else event.end
+    event.name = title if title else event.name
+
     event.save()
     data = {}
     return JsonResponse(data)
 
-
+@login_required
 def remove(request):
     id = request.GET.get("id", None)
     event = Event.objects.get(id=id)

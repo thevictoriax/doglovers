@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/locale/uk.js"></script>
 </head>
 <body>
 <header>
@@ -117,31 +118,35 @@
                center: 'title',
                right: 'month,agendaWeek,agendaDay'
            },
+           locale: 'uk',
            events: '/all_events',
            selectable: true,
            selectHelper: true,
            editable: true,
            eventLimit: true,
            select: function (start, end, allDay) {
-               var title = prompt("Enter Event Title");
-               if (title) {
-                   var start = $.fullCalendar.formatDate(start, "Y-MM-DD HH:mm:ss");
-                   var end = $.fullCalendar.formatDate(end, "Y-MM-DD HH:mm:ss");
-                   $.ajax({
-                       type: "GET",
-                       url: '/add_event',
-                       data: {'title': title, 'start': start, 'end': end},
-                       dataType: "json",
-                       success: function (data) {
-                           calendar.fullCalendar('refetchEvents');
-                           alert("Added Successfully");
-                       },
-                       error: function (data) {
-                           alert('There is a problem!!!');
-                       }
-                   });
-               }
-           },
+    var title = prompt("Enter Event Title");
+    if (title) {
+        // Форматуємо дати за допомогою Moment.js
+        var formattedStart = moment(start).format("YYYY-MM-DD HH:mm:ss");
+        var formattedEnd = moment(end).format("YYYY-MM-DD HH:mm:ss");
+        
+        // Надсилаємо запит на сервер
+        $.ajax({
+            type: "GET",
+            url: '/add_event',
+            data: {'title': title, 'start': formattedStart, 'end': formattedEnd},
+            dataType: "json",
+            success: function (data) {
+                calendar.fullCalendar('refetchEvents'); // Оновлюємо події у календарі
+                alert("Added Successfully");
+            },
+            error: function (data) {
+                alert('There is a problem!!!');
+            }
+        });
+    }
+},
            eventResize: function (event) {
                var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
                var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
