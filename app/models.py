@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import User
+import uuid
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -88,32 +89,39 @@ class Dog(models.Model):
     def __str__(self):
         return f"{self.name} ({self.owner.username})"
 
-# class Event(models.Model):
-#     EVENT_TYPES = [
-#         ('deworming', 'Таблетка від глистів'),
-#         ('ticks', 'Таблетка від кліщів'),
-#         ('vet_visit', 'Візит до ветеринара'),
-#         ('vaccination', 'Вакцинація'),
-#     ]
-#
-#     title = models.CharField(max_length=255)  # Назва події
-#     date = models.DateField()  # Дата події
-#     event_type = models.CharField(
-#         max_length=20,
-#         choices=EVENT_TYPES,
-#         default='vet_visit'
-#     )  # Тип події
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Власник
-#     dog = models.ForeignKey('Dog', on_delete=models.CASCADE)  # Звʼязок із собакою
-#     description = models.TextField(blank=True, null=True)  # Опис події
-#
-#     def __str__(self):
-#         return f"{self.title} - {self.date}"
+
 class Event(models.Model):
+    TYPE_CHOICES = [
+        ('tick_tablet', 'Таблетка від кліщів'),
+        ('worm_tablet', 'Таблетка від глистів'),
+        ('vet_visit', 'Візит до ветеринара'),
+        ('vitamins', 'Вітаміни'),
+        ('treatment_tablet', 'Лікувальні таблетки'),
+        ('grooming', 'Грумінг'),
+        ('vaccination', 'Вакцинація'),
+        ('other', 'Інше'),
+    ]
+    dog = models.ForeignKey(
+        Dog,
+        on_delete=models.CASCADE,
+        related_name="events",
+        default=1
+    )
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, null=True, blank=True)
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)
+    event_type = models.CharField(max_length=50, choices=TYPE_CHOICES)
+    repeat_interval = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        choices=[('none', 'Без повторень'), ('daily', 'Щодня'), ('weekly', 'Щотижня'), ('monthly', 'Щомісяця'), ('yearly', 'Щороку')]
+    )
+    series_id = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)  # Унікальний ідентифікатор серії
 
     class Meta:
         db_table = "tblevents"
+
+    def __str__(self):
+        return f"{self.name} - {self.event_type} - {self.dog.name}"

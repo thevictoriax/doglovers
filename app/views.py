@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.shortcuts import render, get_object_or_404, redirect
 from app.models import Post, Comments, Tag, Profile, WebsiteMeta, Dog, Event
-from app.forms import CommentForm, SubscribeForm, NewUserForm, PostForm, DogForm
+from app.forms import CommentForm, SubscribeForm, NewUserForm, PostForm, DogForm, EventForm
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -13,6 +13,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 import json
 from pathlib import Path
+from dateutil.relativedelta import relativedelta
 from django.utils.timezone import is_naive, make_aware
 import pytz
 
@@ -322,78 +323,141 @@ def delete_dog(request, pk):
 
 @login_required
 def user_calendar(request):
-    all_events = Event.objects.all()
+    user_dogs = Dog.objects.filter(owner=request.user).order_by('id')  # Упорядкування для послідовності
+
+    # Фіксований список кольорів для собак
+    static_colors = ['#4cb4c7', '#598eeb', '#8e65f0', '#a24cc7', '#bfc74c', '#c79e4c', '#98c74c']
+    dog_colors = {dog.id: static_colors[index % len(static_colors)] for index, dog in enumerate(user_dogs)}
+
     context = {
-        "events": all_events,
+        "dogs": user_dogs,  # Усі собаки користувача
+        "dog_colors": [{"name": dog.name, "color": dog_colors[dog.id]} for dog in user_dogs],  # Для легенди
+        "dog_color_map": dog_colors,  # Мапа собака -> колір для передачі подій
     }
     return render(request, 'app/user_calendar.html', context)
 
+
 @login_required
 def all_events(request):
-    all_events = Event.objects.all()
+    dog_id = request.GET.get("dog_id")  # Отримання ID собаки з GET-запиту
+    event_type = request.GET.get("event_type")  # Отримання типу події з GET-запиту
+
+    # Список всіх собак користувача
+    user_dogs = Dog.objects.filter(owner=request.user).order_by('id')
+
+    # Фіксований список кольорів
+    static_colors = ['#4cb4c7', '#598eeb', '#8e65f0', '#a24cc7', '#bfc74c', '#c79e4c', '#98c74c']
+    dog_colors = {dog.id: static_colors[index % len(static_colors)] for index, dog in enumerate(user_dogs)}  # Генеруємо кольори для кожної собаки
+
+    # Фільтруємо події
+    all_events = Event.objects.filter(dog__owner=request.user)
+
+    # Фільтр по собаці
+    if dog_id:
+        all_events = all_events.filter(dog_id=dog_id)
+
+    # Фільтр по типу події
+    if event_type:
+        all_events = all_events.filter(event_type=event_type)
+
+    # Формуємо список подій
     out = []
     for event in all_events:
-        # Перевіряємо, чи дата "наївна", і додаємо часовий пояс
-        start = event.start
-        end = event.end
-
-        if is_naive(start):
-            start = make_aware(start, pytz.timezone('UTC'))
-
-        if is_naive(end):
-            end = make_aware(end, pytz.timezone('UTC'))
-
-        # Використовуємо ISO формат
         out.append({
-            'title': event.name,
+            'title': f"{event.name} - {event.get_event_type_display()} ({event.dog.name})",
             'id': event.id,
-            'start': start.isoformat(),  # Конвертуємо у ISO формат
-            'end': end.isoformat(),      # Конвертуємо у ISO формат
+            'start': event.start.isoformat(),
+            'end': event.end.isoformat(),
+            'color': dog_colors[event.dog.id],  # Використання кольору з фіксованої мапи
         })
 
     return JsonResponse(out, safe=False)
 
 @login_required
+def update_event(request, event_id):
+    event = Event.objects.get(id=event_id)
+    if request.method == "POST":
+        form = EventForm(request.POST, instance=event, user=request.user)
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.name = form.cleaned_data['name']
+            event.event_type = form.cleaned_data['event_type']
+            event.save()
+            return redirect('/calendar/')
+        else:
+            return render(request, 'app/edit_event.html', {'form': form, 'errors': form.errors, 'event_id': event_id})
+    else:
+        form = EventForm(instance=event, user=request.user)
+        return render(request, 'app/edit_event.html', {'form': form, 'event_id': event_id})
+
+
+@login_required
+def remove_event(request):
+    if request.method == "POST":
+        event_id = request.POST.get("event_id")
+        delete_all = request.POST.get("delete_all") == "on"
+
+        try:
+            event = Event.objects.get(id=event_id)
+
+            if delete_all:
+                # Видаляємо поточну подію і всі наступні в серії
+                Event.objects.filter(
+                    series_id=event.series_id,  # Видаляємо події з тієї ж серії
+                    start__gte=event.start  # Тільки події, що є поточною або пізніше за часом
+                ).delete()
+            else:
+                # Видаляємо тільки поточну подію
+                event.delete()
+
+            return redirect('/calendar/')  # Після видалення перенаправляємо на календар
+        except Event.DoesNotExist:
+            return JsonResponse({'error': 'Подія не знайдена'}, status=404)
+
+    return JsonResponse({'error': 'Недопустимий метод запиту'}, status=400)
+
+@login_required
 def add_event(request):
-    start = request.GET.get("start", None)
-    end = request.GET.get("end", None)
-    title = request.GET.get("title", None)
+    if request.method == 'POST':
+        form = EventForm(request.POST, user=request.user)
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.name = form.cleaned_data['name']  # Встановлюємо назву події
+            event.event_type = form.cleaned_data['event_type']  # Записуємо тип події
+            event.save()
 
-    # Конвертуємо строки в datetime (ISO8601 формат)
-    start = datetime.fromisoformat(start) if start else None
-    end = datetime.fromisoformat(end) if end else None
+            # Генеруємо повторювані події
+            series_id = event.series_id
+            repeat_interval = event.repeat_interval
+            if repeat_interval and repeat_interval != 'none':
+                start = event.start
+                end = event.end
+                for i in range(1, 12):  # 12 повторень
+                    if repeat_interval == 'daily':
+                        start += timedelta(days=1)
+                        end += timedelta(days=1)
+                    elif repeat_interval == 'weekly':
+                        start += timedelta(weeks=1)
+                        end += timedelta(weeks=1)
+                    elif repeat_interval == 'monthly':
+                        start += relativedelta(months=1)
+                        end += relativedelta(months=1)
+                    elif repeat_interval == 'yearly':
+                        start += relativedelta(years=1)
+                        end += relativedelta(years=1)
 
-    # Зберігаємо нову подію
-    if start and end and title:
-        event = Event(name=str(title), start=start, end=end)
-        event.save()
-
-    data = {}
-    return JsonResponse(data)
-
-@login_required
-def update(request):
-    start = request.GET.get("start", None)
-    end = request.GET.get("end", None)
-    title = request.GET.get("title", None)
-    id = request.GET.get("id", None)
-
-    # Перевіряємо, чи подія існує
-    event = Event.objects.get(id=id)
-
-    # Конвертуємо строки в datetime
-    event.start = datetime.fromisoformat(start) if start else event.start
-    event.end = datetime.fromisoformat(end) if end else event.end
-    event.name = title if title else event.name
-
-    event.save()
-    data = {}
-    return JsonResponse(data)
-
-@login_required
-def remove(request):
-    id = request.GET.get("id", None)
-    event = Event.objects.get(id=id)
-    event.delete()
-    data = {}
-    return JsonResponse(data)
+                    Event.objects.create(
+                        name=event.name,
+                        start=start,
+                        end=end,
+                        dog=event.dog,
+                        repeat_interval=repeat_interval,
+                        series_id=series_id,
+                        event_type=event.event_type  # Встановлюємо тип події
+                    )
+            return redirect('/calendar/')
+        else:
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        form = EventForm(user=request.user)
+        return render(request, 'app/add_event.html', {'form': form})

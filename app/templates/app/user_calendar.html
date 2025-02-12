@@ -1,7 +1,56 @@
-{% extends "app\calendar_index.html" %}
+{% extends "app/calendar_index.html" %}
 {% load static %}
 {% block content %}
-<div class="col-md-12">    
-    <div id='calendar'></div> 
-</div> 
-{% endblock content %} 
+
+   <div class="container calendar-layout">
+    <!-- Легенда подій (зліва) -->
+    <div class="legend-container">
+        <h2>Легенда подій</h2>
+        <ul class="dog-list">
+            {% for dog in dog_colors %}
+            <li>
+                <span class="color-box" style="background-color: {{ dog.color }};"></span>
+                <span class="dog-name">{{ dog.name }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Календар (по центру) -->
+    <div class="calendar-container">
+        <div id="calendar"></div>
+    </div>
+
+    <!-- Фільтри (справа) -->
+    <div class="filter-container">
+        <h2>Фільтри</h2>
+        <!-- Фільтр по собаці -->
+        <div style="margin-bottom: 15px;">
+            <label for="dogFilter" style="margin-right: 10px;">Собака:</label>
+            <select id="dogFilter" style="width: 100%; padding: 5px;">
+                <option value="">Усі собаки</option>
+                {% for dog in dogs %}
+                <option value="{{ dog.id }}">{{ dog.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <!-- Фільтр по виду події -->
+        <div style="margin-bottom: 15px;">
+            <label for="eventTypeFilter" style="margin-right: 10px;">Вид події:</label>
+            <select id="eventTypeFilter" style="width: 100%; padding: 5px;">
+                <option value="">Усі події</option>
+                <option value="tick_tablet">Таблетка від кліщів</option>
+                <option value="worm_tablet">Таблетка від глистів</option>
+                <option value="vet_visit">Візит до ветеринара</option>
+                <option value="vitamins">Вітаміни</option>
+                <option value="treatment_tablet">Лікувальні таблетки</option>
+                <option value="grooming">Грумінг</option>
+                <option value="vaccination">Вакцинація</option>
+                <option value="other">Інше</option>
+            </select>
+        </div>
+        <!-- Кнопка скидання фільтрів -->
+        <button id="resetFilters" style="margin-top: 10px; width: 100%; padding: 10px;">Скинути фільтри</button>
+    </div>
+</div>
+{% endblock content %}

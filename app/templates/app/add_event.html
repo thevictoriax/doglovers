@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Додати запис{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <a href="javascript:history.back()" class="learn">
+        <span class="material-icons">keyboard_return</span>
+        Повернутись назад
+    </a>
+
+    <h1 class="page-title">Додати запис</h1>
+
+    <div class="event-form">
+        <form method="post" enctype="multipart/form-data" class="form">
+            {% csrf_token %}
+            <!-- Рендеринг форми автоматично -->
+            <div class="form-group">
+                {{ form.as_p }}
+            </div>
+
+            <button type="submit" class="btn btn-primary">Зберегти</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

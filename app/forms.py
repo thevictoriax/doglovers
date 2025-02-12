@@ -5,7 +5,7 @@ from app.models import Comments, Subscribe
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from app.models import Post,  Tag, Profile, Dog
+from app.models import Post,  Tag, Profile, Dog, Event
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from ckeditor.widgets import CKEditorWidget
 from django.utils.text import slugify
@@ -15,6 +15,7 @@ from django.core.exceptions import ValidationError
 from datetime import date
 import json
 from pathlib import Path
+from django.forms.widgets import DateTimeInput
 
 BREEDS_FILE = Path(__file__).resolve().parent / "dog_breeds.json"
 with open(BREEDS_FILE, encoding="utf-8") as f:
@@ -133,7 +134,7 @@ class DogForm(forms.ModelForm):
     breed = forms.ChoiceField(
         label="Порода",
         choices=DOG_BREEDS_CHOICES,  # Використовуємо список порід
-        required=True
+        required=False
     )
     birth_date = forms.DateField(
         label="Дата народження",
@@ -153,6 +154,13 @@ class DogForm(forms.ModelForm):
     class Meta:
         model = Dog
         fields = ['name', 'breed', 'birth_date', 'weight', 'profile_image']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Ініціалізуємо значення поля birth_date у форматі YYYY-MM-DD
+        if self.instance.pk and self.instance.birth_date:
+            self.initial['birth_date'] = self.instance.birth_date.strftime('%Y-%m-%d')
 
     def clean(self):
         """
@@ -175,5 +183,58 @@ class DogForm(forms.ModelForm):
         # Якщо є помилки, додаємо їх як non_field_errors
         if errors:
             raise ValidationError(errors)
+
+        return cleaned_data
+
+
+class EventForm(forms.ModelForm):
+    class Meta:
+        model = Event
+        fields = ['start', 'end', 'dog', 'repeat_interval', 'event_type']
+        widgets = {
+            'start': DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'end': DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+        }
+        labels = {
+            'start': 'Початок',
+            'end': 'Завершення',
+            'dog': 'Собака',
+            'repeat_interval': 'Інтервал повторення',
+            'event_type': 'Тип події',
+        }
+
+    custom_name = forms.CharField(
+        required=False,
+        label="Назва події (необов'язково)",
+    )
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(EventForm, self).__init__(*args, **kwargs)
+        if user:
+            self.fields['dog'].queryset = Dog.objects.filter(owner=user)
+
+        # Форматуємо значення для datetime-local
+        if self.instance.pk:
+            if self.instance.start:
+                self.initial['start'] = self.instance.start.strftime('%Y-%m-%dT%H:%M')
+            if self.instance.end:
+                self.initial['end'] = self.instance.end.strftime('%Y-%m-%dT%H:%M')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        event_type = cleaned_data.get('event_type')  # Отримуємо вибране значення
+        custom_name = cleaned_data.get('custom_name')
+
+        # Якщо обрано "Інше", вимагаємо введення назви події
+        if event_type == 'other' and not custom_name:
+            raise ValidationError("Для обраного варіанту 'Інше' необхідно вказати власну назву події.")
+
+        # Якщо "Інше", використовуємо власну назву як "name"
+        if event_type == 'other' and custom_name:
+            cleaned_data['name'] = custom_name
+        else:
+            # Назва використовується з вибору EVENT_CHOICES
+            cleaned_data['name'] = dict(Event.TYPE_CHOICES).get(event_type)
 
         return cleaned_data

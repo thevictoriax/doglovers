@@ -51,7 +51,7 @@
           <a href="{% url 'login' %}"
             ><button class="btn btn-scoundary">Авторизуватись</button></a
           >
-          <a href="{% url 'register' %}"
+          <a href="{% url 'register' %}"></a>
             <button class="btn btn-primary">Зареєструватись</button></a
           >
           <i class="uil uil-align-center-alt menu" onclick="menu()"></i>
@@ -111,113 +111,74 @@
               </div>
     </footer>
 <script>
-   $(document).ready(function () {
-       var calendar = $('#calendar').fullCalendar({
-           header: {
-               left: 'prev,next today',
-               center: 'title',
-               right: 'month,agendaWeek,agendaDay'
-           },
-           locale: 'uk',
-           events: '/all_events',
-           selectable: true,
-           selectHelper: true,
-           editable: true,
-           eventLimit: true,
-           select: function (start, end, allDay) {
-    var title = prompt("Enter Event Title");
-    if (title) {
-        // Форматуємо дати за допомогою Moment.js
-        var formattedStart = moment(start).format("YYYY-MM-DD HH:mm:ss");
-        var formattedEnd = moment(end).format("YYYY-MM-DD HH:mm:ss");
+$(document).ready(function () {
+    // Ініціалізуємо FullCalendar
+    var calendar = $('#calendar').fullCalendar({
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
+        },
+        locale: 'uk',
+        events: '/all_events',  // Стартове джерело подій
+        selectable: true,
+        selectHelper: true,
+        editable: true,
+        eventLimit: true,
+
+        // Вибір діапазону для нової події
+        select: function (start, end) {
+            var startDate = start.format("YYYY-MM-DDTHH:mm:ss");
+            var endDate = end.format("YYYY-MM-DDTHH:mm:ss");
+
+            // Перенаправляємо на сторінку створення нової події
+            window.location.href = '/add_event?start=' + encodeURIComponent(startDate) + '&end=' + encodeURIComponent(endDate);
+        },
+
+        // Редагування події при кліку
+        eventClick: function (event) {
+            // Перенаправлення на сторінку редагування події
+            window.location.href = '/update_event/' + event.id + '/';
+        }
+    });
+
+    // Функція для оновлення подій на основі фільтрів
+    function updateEvents() {
+        var dogId = $('#dogFilter').val();  // Отримуємо ID собаки
+        var eventType = $('#eventTypeFilter').val();  // Отримуємо тип події
+        var eventsUrl = '/all_events?';
         
-        // Надсилаємо запит на сервер
-        $.ajax({
-            type: "GET",
-            url: '/add_event',
-            data: {'title': title, 'start': formattedStart, 'end': formattedEnd},
-            dataType: "json",
-            success: function (data) {
-                calendar.fullCalendar('refetchEvents'); // Оновлюємо події у календарі
-                alert("Added Successfully");
-            },
-            error: function (data) {
-                alert('There is a problem!!!');
-            }
-        });
+        // Додаємо параметри до URL якщо вони є
+        if (dogId) {
+            eventsUrl += 'dog_id=' + dogId + '&';
+        }
+
+        if (eventType) {
+            eventsUrl += 'event_type=' + eventType;
+        }
+
+        // Оновлення подій у календарі
+        $('#calendar').fullCalendar('removeEventSources');  // Видаляємо всі попередні джерела
+        $('#calendar').fullCalendar('addEventSource', eventsUrl);  // Додаємо нове джерело
+        $('#calendar').fullCalendar('refetchEvents');  // Перезавантажуємо події
     }
-},
-           eventResize: function (event) {
-               var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
-               var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
-               var title = event.title;
-               var id = event.id;
-               $.ajax({
-                   type: "GET",
-                   url: '/update',
-                   data: {'title': title, 'start': start, 'end': end, 'id': id},
-                   dataType: "json",
-                   success: function (data) {
-                       calendar.fullCalendar('refetchEvents');
-                       alert('Event Update');
-                   },
-                   error: function (data) {
-                       alert('There is a problem!!!');
-                   }
-               });
-           },
- 
-           eventDrop: function (event) {
-               var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
-               var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
-               var title = event.title;
-               var id = event.id;
-               $.ajax({
-                   type: "GET",
-                   url: '/update',
-                   data: {'title': title, 'start': start, 'end': end, 'id': id},
-                   dataType: "json",
-                   success: function (data) {
-                       calendar.fullCalendar('refetchEvents');
-                       alert('Event Update');
-                   },
-                   error: function (data) {
-                       alert('There is a problem!!!');
-                   }
-               });
-           },
- 
-           eventClick: function (event) {
-               if (confirm("Are you sure you want to remove it?")) {
-                   var id = event.id;
-                   $.ajax({
-                       type: "GET",
-                       url: '/remove',
-                       data: {'id': id},
-                       dataType: "json",
-                       success: function (data) {
-                           calendar.fullCalendar('refetchEvents');
-                           alert('Event Removed');
-                       },
-                       error: function (data) {
-                           alert('There is a problem!!!');
-                       }
-                   });
-               }
-           },
- 
-       });
-   });
- 
+
+    // Прив'язуємо фільтри до події зміни і кнопки скидання
+    $('#dogFilter, #eventTypeFilter').on('change', updateEvents);  // Оновлення при будь-якій зміні в фільтрах
+    $('#resetFilters').on('click', function() {
+        $('#dogFilter, #eventTypeFilter').val('');  // Знімаємо всі фільтри
+        updateEvents();  // Перезавантаження подій із скинутими фільтрами
+    });
+});
 </script>
 </body>
         <style>
         /* Збільшений шрифт для fc-title та fc-time */
         .fc-title {
-            font-size: 16px !important; /* Наприклад, встановлюємо на 18px */
+            font-size: 13px; /* Наприклад, встановлюємо на 18px */
         }
         .fc-time {
-            font-size: 16px !important; /* Наприклад, встановлюємо на 16px */
+            font-size: 13px; /* Наприклад, встановлюємо на 16px */
         }
         .fc-view-container {
             width: 80%; 
@@ -227,5 +188,80 @@
         width: 80%; /* Встановлюємо таку ж ширину, як у календаря */
         margin: 0 auto; /* Центруємо, як і календар */
     }
+/* Оформлення головного контейнера */
+.calendar-layout {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; /* Розподіл блоків */
+    align-items: flex-start;       /* Вирівнювання по верхньому краю */
+    gap: 20px;                     /* Проміжок між блоками */
+}
+
+/* Легенда (зліва) */
+.legend-container {
+    width: 15%;                /* Легенда займає 15% ширини */
+    background: #f8f8f8;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.legend-container h2 {
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.dog-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dog-list li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.color-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.dog-name {
+    font-size: 16px;
+}
+
+/* Календар (по центру) */
+.calendar-container {
+    width: 60%;                /* Календар займає 60% ширини */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Легка тінь */
+}
+
+/* Фільтри (справа) */
+.filter-container {
+    width: 20%;                /* Фільтри займають 20% ширини */
+    background: #fdfdfd;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.filter-container h2 {
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.filter-container select,
+.filter-container button {
+    width: 100%;               /* Елементи займають всю ширину контейнера */
+    margin-bottom: 15px;
+    padding: 8px;
+}
     </style>
 </html>

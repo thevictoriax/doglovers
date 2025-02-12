@@ -19,27 +19,32 @@
                 <div class="form-group">
                     {{ form.as_p }}
                 </div>
+                
                 <!-- Save Button -->
                 <button type="submit" class="btn btn-primary w-100 mb-2">Зберегти зміни</button>
-            </form>
 
-            <!-- Delete Profile Form -->
-            <form method="post" action="{% url 'delete_dog' dog.pk %}" onsubmit="return confirm('Ви впевнені, що хочете видалити цю анкету?');">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger w-100">Видалити анкету</button>
+                <!-- Delete Button -->
+                <hr>
+                <!-- Кнопка видалення всередині цієї ж форми -->
+                <div class="form-group text-center">
+                    <button type="submit"
+                            formaction="{% url 'delete_dog' dog.pk %}"
+                            class="btn btn-danger w-50">
+                        Видалити анкету
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 </div>
 
 <script>
-    // Застосовуємо Select2 до поля породи
-    $(document).ready(function() {
-        // Select2 для форми з породи
+    // Застосування Select2 до всіх <select> у формі
+    $(document).ready(function () {
         $('#id_breed').select2({
             placeholder: "Оберіть породу...",
-            allowClear: true, // Дозволяє очищення вибору
-            width: '100%' // Ширина Select2 під налаштування форми
+            allowClear: false,
+             width: '70%'// Дозволяє очистити вибір
         });
     });
 </script>
