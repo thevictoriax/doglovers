@@ -33,6 +33,7 @@ urlpatterns = [
    path('update_event/<int:event_id>/', views.update_event, name='update_event'),
    path('remove_event/', views.remove_event, name='remove_event'),
    path('add_event/', views.add_event, name='add_event'),
+   path('edit_profile/', views.edit_profile, name='edit_profile'),
 
 
 

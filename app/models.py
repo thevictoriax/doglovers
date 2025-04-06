@@ -105,16 +105,16 @@ class Comments(models.Model):
     content = models.TextField()
     date = models.DateTimeField(auto_now=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    parent = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True, related_name='replies')
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies'
+    )
 
     @property
     def author_name(self):
-        # Якщо є прив'язаний автор — беремо його ім'я, інакше використовуємо поле 'name'
         return self.author.first_name if self.author else self.name
 
     @property
     def author_image(self):
-        # Якщо є прив'язаний автор—отримуємо URL профіля, інакше стандартну іконку
         if self.author and hasattr(self.author, 'profile') and self.author.profile.profile_image:
             return self.author.profile.profile_image.url
         return "images/default-avatar.png"

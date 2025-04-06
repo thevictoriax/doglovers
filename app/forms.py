@@ -16,6 +16,7 @@ from datetime import date
 import json
 from pathlib import Path
 from django.forms.widgets import DateTimeInput
+from django.contrib.auth.hashers import check_password
 
 BREEDS_FILE = Path(__file__).resolve().parent / "dog_breeds.json"
 with open(BREEDS_FILE, encoding="utf-8") as f:
@@ -116,25 +117,28 @@ class NewUserForm(UserCreationForm):
 
 
 class PostForm(forms.ModelForm):
-    title = forms.CharField(label="Заголовок")
-    content = forms.CharField(label="Зміст", widget=CKEditorWidget())
-    image = forms.ImageField(label="Зображення")
-    tags = forms.ModelMultipleChoiceField(label="Теги", queryset=Tag.objects.all(), widget=forms.CheckboxSelectMultiple)
-    slug = forms.CharField(widget=forms.HiddenInput(), required=False)  
-    # author_username = forms.CharField(widget=forms.HiddenInput())  
-
-
     class Meta:
         model = Post
-        fields = ['title', 'content', 'image', 'tags']
-    
+        fields = ['title', 'content', 'image', 'tags']  # БЕЗ slug
+        labels = {
+            'title': 'Заголовок',
+            'content': 'Зміст',
+            'image': 'Зображення',
+            'tags': 'Теги',
+        }
+        widgets = {
+            'content': CKEditorWidget(),
+            'tags': forms.CheckboxSelectMultiple(),
+        }
+
     def save(self, commit=True):
-        instance = super(PostForm, self).save(commit=False)
-        translated_title = _(instance.title)  # Translate the title
-        slug = slugify(unidecode(translated_title))  # Generate slug based on translated title
-        instance.slug = slug
+        instance = super().save(commit=False)
+        if not instance.slug:  # створюємо slug тільки якщо ще нема
+            translated_title = _(instance.title)
+            instance.slug = slugify(unidecode(translated_title))
         if commit:
             instance.save()
+            self.save_m2m()
         return instance
 
 
@@ -247,3 +251,73 @@ class EventForm(forms.ModelForm):
             cleaned_data['name'] = dict(Event.TYPE_CHOICES).get(event_type)
 
         return cleaned_data
+
+
+
+
+
+class EditProfileForm(forms.ModelForm):
+    first_name = forms.CharField(label="Ім'я", max_length=30, required=True)
+    last_name = forms.CharField(label="Прізвище", max_length=30, required=True)
+    email = forms.EmailField(label="Email", required=True)
+    current_password = forms.CharField(
+        label="Старий пароль",
+        widget=forms.PasswordInput(),
+        required=False,
+    )
+    new_password = forms.CharField(
+        label="Новий пароль",
+        widget=forms.PasswordInput(),
+        required=False,
+    )
+    profile_image = forms.ImageField(label="Фото профілю", required=False)
+    bio = forms.CharField(label="Біографія", widget=forms.Textarea, required=False)
+
+    class Meta:
+        model = Profile
+        fields = ['profile_image', 'bio']
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if self.user:
+            self.fields['first_name'].initial = self.user.first_name
+            self.fields['last_name'].initial = self.user.last_name
+            self.fields['email'].initial = self.user.email
+
+    def clean(self):
+        """
+        Перевіряємо, чи старий пароль правильний, якщо користувач вказує новий пароль.
+        """
+        cleaned_data = super().clean()
+        current_password = cleaned_data.get('current_password')
+        new_password = cleaned_data.get('new_password')
+
+        if new_password:  # Користувач намагається змінити пароль
+            if not current_password:
+                raise forms.ValidationError("Необхідно вказати старий пароль для зміни пароля.")
+
+            if not check_password(current_password, self.user.password):  # Перевірка старого пароля
+                raise forms.ValidationError("Старий пароль введено неправильно.")
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        """
+        Збереження даних профілю та користувача.
+        """
+        profile = super().save(commit=False)
+        user = self.user
+
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        user.email = self.cleaned_data['email']
+
+        new_password = self.cleaned_data.get('new_password')
+        if new_password:  # Якщо новий пароль введений
+            user.set_password(new_password)
+
+        if commit:
+            user.save()
+            profile.save()
+        return profile

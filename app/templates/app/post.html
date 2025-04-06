@@ -134,61 +134,83 @@
                         </div>
                       </div> {% endcomment %}
                     </div>
-                    {% for comment in comments %}
-                    <!-- comments -->
-                    <div class="user-comment">
-                      <div class="author">
-                        <div class="profile-pic">
-                            <!-- Використовуємо "author_image" для вибору між фото користувача чи стандартного -->
-                            <img src="{{ comment.author_image }}" alt="User Avatar">
-                        </div>
-                        <div class="details">
-                            <!-- Використовуємо "author_name" для отримання правильної назви -->
-                            <p>{{ comment.author_name }}</p>
-                            <small>{% language 'uk' %}{{ comment.date|date:"F d, Y" }}{% endlanguage %}</small>
-                        </div>
-                    </div>
-                      <div class="comment-sec-main">
-                        <div class="comment-sec">
-                          <div class="comment">
-                            <p>
-                              {{comment.content}}
-                            </p>
-                          </div>
-                          <div class="reply">
-                            <button onclick="toggleDiv(this)">Відповісти</button>
-                          </div>
-                         <div class="comment-box reply-form" style="display: none;">
-                            <h3>Відповісти на коментар</h3>
-                            <p>Ваша електронна адреса не буде опублікована</p>
-                            <form method="POST">
-                                {% csrf_token %}
-                                {{ form.content }}
-                                <input type="hidden" name="post_id" value="{{ post.id }}">
-                                <input type="hidden" name="parent" value="{{ comment.id }}">
-                                <button class="btn btn-primary rounded">Відповіcти</button>
-                            </form>
-                        </div>
+{% for comment in comments %}
+    <div class="user-comment">
+        <div class="author">
+            <div class="profile-pic">
+                <img src="{{ comment.author_image }}" alt="User Avatar">
+            </div>
+            <div class="details">
+                <p>{{ comment.author_name }}</p>
+                <small>{% language 'uk' %}{{ comment.date|date:"F d, Y" }}{% endlanguage %}</small>
+            </div>
+        </div>
+        <div class="comment-sec-main">
+            <div class="comment-sec">
+                <div class="comment">
+                    <p>{{ comment.content }}</p>
+                </div>
+                <!-- Додати кнопку видалення -->
+                {% if user.is_authenticated and user == comment.author %}
+  <!-- Перенесена кнопка "Видалити" нижче -->
+  <div style="margin-top: 10px;">
+    <form method="POST" action="{% url 'post_page' post.slug %}">
+      {% csrf_token %}
+      <input type="hidden" name="comment_id" value="{{ comment.id }}">
+      <button type="submit" name="delete_comment" style="background: none; border: none; color: red; cursor: pointer;">
+  Видалити
+</button>
 
-
-                        </div>
+    </form>
+  </div>
+  {% endif %}
+                 <div class="reply">
+                    <button onclick="toggleDiv(this)">Відповісти</button>
+                </div>
+                <div class="comment-box reply-form" style="display: none;">
+                    <h3>Відповісти на коментар</h3>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form.content }}
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <input type="hidden" name="parent" value="{{ comment.id }}">
+                        <button class="btn btn-primary rounded">Відповісти</button>
+                    </form>
+                </div>
+            </div>
                         
                         {% for reply in comment.replies.all %}
-                        <div class="public-reply">
-                            <div class="author">
-                                <div class="profile-pic">
-                                    <img src="{{ reply.author_image }}" alt="User Avatar">
-                                </div>
-                                <div class="details">
-                                    <p>{{ reply.author_name }}</p>
-                                    <small>{% language 'uk' %}{{ reply.date|date:"F d, Y" }}{% endlanguage %}</small>
-                                </div>
-                            </div>
-                            <div class="comment">
-                                <p>{{ reply.content }}</p>
-                            </div>
+                <div class="public-reply">
+                    <div class="author">
+                        <div class="profile-pic">
+                            <img src="{{ reply.author_image }}" alt="User Avatar">
                         </div>
-                        {% endfor %}
+                        <div class="details">
+                            <p>{{ reply.author_name }}</p>
+                            <small>{% language 'uk' %}{{ reply.date|date:"F d, Y" }}{% endlanguage %}</small>
+                        </div>
+                    </div>
+                    <div class="comment">
+                        <p>{{ reply.content }}</p>
+                    </div>
+                         <!-- Додати кнопку видалення для відповіді -->
+                <div class="button" style="display: none;">
+{% if user.is_authenticated and user == comment.author %}
+  <!-- Перенесена кнопка "Видалити" нижче -->
+  <div style="margin-top: 10px;">
+    <form method="POST" action="{% url 'post_page' post.slug %}">
+      {% csrf_token %}
+      <input type="hidden" name="comment_id" value="{{ comment.id }}">
+      <button type="submit" name="delete_comment" style="background: none; border: none; color: red; cursor: pointer;">
+  Видалити
+</button>
+
+    </form>
+  </div>
+  {% endif %}
+                </div>
+                            </div>
+            {% endfor %}
 
                         
 
@@ -315,7 +337,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    let mainCommentForm = document.querySelector(".comment-box.general-comment-form"); 
+    let mainCommentForm = document.querySelector(".comment-box.general-comment-form");
     let activeReplyForm = null; // Стежимо за активною формою відповіді
 
     document.querySelectorAll(".reply-button").forEach(button => {
@@ -336,7 +358,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 replyBox.style.display = "none";  // Закриваємо форму відповіді
                 activeReplyForm = null;          // Забуваємо про активну форму
-                
+
                 // Якщо немає відкритої форми відповіді, повертаємо загальну форму
                 mainCommentForm.style.display = "block";
             }

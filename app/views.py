@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from django.shortcuts import render, get_object_or_404, redirect
 from app.models import Post, Comments, Tag, Profile, WebsiteMeta, Dog, Event
-from app.forms import CommentForm, SubscribeForm, NewUserForm, PostForm, DogForm, EventForm
+from app.forms import CommentForm, SubscribeForm, NewUserForm, PostForm, DogForm, EventForm, EditProfileForm
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse, Http404
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -17,6 +17,9 @@ from dateutil.relativedelta import relativedelta
 from django.utils.timezone import is_naive, make_aware
 import pytz
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+
+
 
 
 
@@ -52,16 +55,18 @@ def index(request):
     context = {'posts':posts, 'top_posts': top_posts, 'website_info': website_info, 'recent_posts':recent_posts, 'subscribe_form':subscribe_form, 'subscribe_successful':subscribe_successful, 'featured_blog':featured_blog}
     return render(request, 'app/index.html', context)
 
+def delete_nested_comments(comment):
+    replies = Comments.objects.filter(parent=comment)
+    for reply in replies:
+        delete_nested_comments(reply)  # Рекурсивно видаляємо дочірні коментарі
+    comment.delete()
 
 def post_page(request, slug):
     try:
-        # Отримуємо пост
         post = Post.objects.get(slug=slug)
     except Post.DoesNotExist:
-        # Якщо посту не існує, видаємо 404
         raise Http404("Допис не знайдено")
 
-    # Отримуємо коментарі до посту
     comments = Comments.objects.filter(post=post, parent=None)
     form = CommentForm(user=request.user if request.user.is_authenticated else None)
 
@@ -70,23 +75,20 @@ def post_page(request, slug):
     post_is_liked = post.likes.filter(id=request.user.id).exists() if request.user.is_authenticated else False
     number_of_likes = post.number_of_likes()
 
-    # Якщо POST-запит (додаємо коментар чи відповідь на коментар)
     if request.method == "POST":
         if not request.user.is_authenticated:
-            # Якщо користувач не авторизований, повертаємо повідомлення
             messages.error(request, "Тільки авторизовані користувачі можуть залишати коментарі.")
-            return HttpResponseRedirect(reverse('login'))  # Перенаправляємо на сторінку входу
+            return HttpResponseRedirect(reverse('login'))
 
         comment_form = CommentForm(request.POST, user=request.user)
         if comment_form.is_valid():
             parent_obj = None
             if request.POST.get('parent'):
-                # Створення відповіді на коментар
                 parent_id = request.POST.get('parent')
                 try:
                     parent_obj = Comments.objects.get(id=parent_id)
                 except Comments.DoesNotExist:
-                    parent_obj = None  # Якщо parent_id є недійсним
+                    parent_obj = None
 
                 if parent_obj:
                     reply = comment_form.save(commit=False)
@@ -95,15 +97,37 @@ def post_page(request, slug):
                     reply.author = request.user
                     reply.save()
             else:
-                # Залишаємо основний коментар
                 comment = comment_form.save(commit=False)
                 comment.post = post
                 comment.author = request.user
                 comment.save()
-            # Після додання коментаря перенаправляємо назад на сторінку посту
-            return HttpResponseRedirect(reverse('post_page', args=[slug]))
 
-    # Перевірка переглядів (у session) для підрахунку view_count
+            # Повертаємо відповідь, щоб додати новий коментар в контекст без перенаправлення
+            comments = Comments.objects.filter(post=post, parent=None)  # Оновлення коментарів
+            return render(request, 'app/post.html', {
+                'post': post,
+                'form': form,
+                'comments': comments,
+                'is_bookmarked': is_bookmarked,
+                'post_is_liked': post_is_liked,
+                'number_of_likes': number_of_likes,
+                'recent_posts': Post.objects.exclude(id=post.id).order_by('-last_updated')[:3],
+                'top_authors': User.objects.annotate(post_count=Count('post')).order_by('-post_count')[:5],
+                'tags': Tag.objects.all(),
+                'related_posts': Post.objects.exclude(id=post.id).filter(author=post.author)[:3]
+            })
+
+    if request.method == "POST":
+        if "delete_comment" in request.POST:  # Перевірка форми видалення
+            comment_id = request.POST.get("comment_id")
+            try:
+                comment = Comments.objects.get(id=comment_id, author=request.user)
+                comment.delete()  # Видаляємо коментар з дочірніми
+                messages.success(request, "Коментар і всі його відповіді успішно видалено.")
+            except Comments.DoesNotExist:
+                messages.error(request, "Ви не можете видалити цей коментар.")
+            return HttpResponseRedirect(reverse('post_page', args=[slug]))
+    # Якщо пост не переглядався — зберігаємо в сесії
     if 'viewed_posts' not in request.session:
         request.session['viewed_posts'] = []
     if post.id not in request.session['viewed_posts']:
@@ -112,13 +136,6 @@ def post_page(request, slug):
         request.session['viewed_posts'].append(post.id)
         request.session.modified = True
 
-    # Додаткові об'єкти для сайдбару (останні публікації, топ-автори, тощо)
-    recent_posts = Post.objects.exclude(id=post.id).order_by('-last_updated')[:3]
-    top_authors = User.objects.annotate(post_count=Count('post')).order_by('-post_count')[:5]
-    tags = Tag.objects.all()
-    related_posts = Post.objects.exclude(id=post.id).filter(author=post.author)[:3]
-
-    # Рендеримо шаблон з усіма даними
     context = {
         'post': post,
         'form': form,
@@ -126,10 +143,10 @@ def post_page(request, slug):
         'is_bookmarked': is_bookmarked,
         'post_is_liked': post_is_liked,
         'number_of_likes': number_of_likes,
-        'recent_posts': recent_posts,
-        'top_authors': top_authors,
-        'tags': tags,
-        'related_posts': related_posts
+        'recent_posts': Post.objects.exclude(id=post.id).order_by('-last_updated')[:3],
+        'top_authors': User.objects.annotate(post_count=Count('post')).order_by('-post_count')[:5],
+        'tags': Tag.objects.all(),
+        'related_posts': Post.objects.exclude(id=post.id).filter(author=post.author)[:3]
     }
 
     return render(request, 'app/post.html', context)
@@ -494,3 +511,28 @@ def add_event(request):
     else:
         form = EventForm(user=request.user)
         return render(request, 'app/add_event.html', {'form': form})
+
+
+
+
+
+@login_required
+def edit_profile(request):
+    profile = request.user.profile  # Отримуємо профіль користувача
+
+    if request.method == "POST":
+        form = EditProfileForm(request.POST, request.FILES, instance=profile, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Ваш профіль успішно оновлено!")
+
+            # Якщо пароль змінюється, оновлюємо сесію користувача, щоб він залишився залогованим
+            if form.cleaned_data.get('new_password'):
+                update_session_auth_hash(request, request.user)
+
+            # Перенаправляємо користувача на сторінку автора
+            return redirect('author_page', slug=request.user.profile.slug)
+    else:
+        form = EditProfileForm(instance=profile, user=request.user)
+
+    return render(request, 'app/edit_profile.html', {'form': form})

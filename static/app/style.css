@@ -1178,3 +1178,98 @@ iframe {
     margin-bottom: 10px;  /* Змінює відстань між кнопками */
 }
 
+.btn-delete-comment {
+    background: none;
+    border: none;
+    color: #444;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0;
+    margin-top: 8px;
+    transition: color 0.3s ease;
+}
+
+.comment-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* відступ між кнопками */
+}
+
+.comment-actions form {
+    margin: 0;
+}
+
+.btn-delete-comment {
+    background-color: transparent;
+    border: none;
+    color: #dc3545; /* червоний, як для видалення */
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 2px 6px;
+}
+
+/* Dropdown container */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown button */
+.dropbtn {
+  background-color: transparent;
+  color: inherit;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Dropdown content */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+  z-index: 1;
+  border-radius: 8px;
+  padding: 10px 0;
+}
+
+/* Dropdown links */
+.dropdown-content a {
+  color: #333;
+  padding: 10px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Hover styles */
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown:hover .dropbtn {
+  color: #2e8555; /* або будь-який інший колір при наведенні */
+}
+
+
+
+.comment-btn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 14px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    padding: 0;
+}
+
+.comment-btn:hover {
+    color: #000;
+    text-decoration: underline;
+}

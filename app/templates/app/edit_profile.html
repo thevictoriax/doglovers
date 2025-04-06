@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Редагувати профіль{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <!-- Назад -->
+    <a href="/" class="learn">
+        <span class="material-icons">keyboard_return</span> На головну
+    </a>
+
+    <!-- Заголовок -->
+    <h1 class="page-title">Редагувати профіль</h1>
+
+    <div class="profile-form row justify-content-center">
+        <div class="col-md-6"> <!-- Ширина форми -->
+            <form method="post" enctype="multipart/form-data" class="form">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.as_p }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mb-2">Зберегти зміни</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
