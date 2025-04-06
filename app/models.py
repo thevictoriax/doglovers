@@ -2,18 +2,60 @@ from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import User
 import uuid
+import requests
+
+
+class NameGender(models.Model):
+    name = models.CharField(max_length=100, unique=True)  # Ім'я користувача
+    gender = models.CharField(max_length=10)  # male, female або unknown
+
+    def __str__(self):
+        return f"{self.name}: {self.gender}"
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_image = models.ImageField(null=True, blank=True, upload_to="images/")
+    profile_image = models.ImageField(
+        null=True,
+        blank=True,
+        upload_to="images/",
+    )
     slug = models.SlugField(max_length=200, unique=True)
     bio = models.CharField(max_length=200)
 
     def save(self, *args, **kwargs):
         if not self.id:
-            # Generate unique slug based on username
             self.slug = self.generate_unique_slug(self.user.username)
-        return super(Profile, self).save(*args, **kwargs)
+
+        # Встановлюємо дефолтну фотографію, якщо фото не завантажено
+        if not self.profile_image:
+            gender = self.detect_gender(self.user.first_name)  # Визначення статі з імені
+            if gender == 'female':
+                self.profile_image = 'images/female.png'
+            elif gender == 'male':
+                self.profile_image = 'images/male.png'
+            else:
+                self.profile_image = 'images/male-1.png'
+
+        super(Profile, self).save(*args, **kwargs)
+
+    def detect_gender(self, name):
+        # Перевіряємо, чи є ім'я в кеші
+        try:
+            cached_gender = NameGender.objects.get(name=name.lower())
+            return cached_gender.gender
+        except NameGender.DoesNotExist:
+            # Якщо немає в кеші, робимо API-запит
+            api_url = f"https://api.genderize.io/?name={name}"
+            try:
+                response = requests.get(api_url)
+                data = response.json()
+                gender = data.get('gender', 'unknown')
+
+                # Зберігаємо в кеші
+                NameGender.objects.create(name=name.lower(), gender=gender)
+                return gender
+            except requests.RequestException:
+                return 'unknown'
 
     def generate_unique_slug(self, username):
         slug = slugify(username)
@@ -23,9 +65,6 @@ class Profile(models.Model):
             unique_slug = f"{slug}-{counter}"
             counter += 1
         return unique_slug
-
-    def __str__(self):
-        return self.user.first_name
 
 class Subscribe(models.Model):
     email = models.EmailField(max_length=100)
@@ -62,14 +101,23 @@ class Post(models.Model):
         return self.likes.count()
 
 class Comments(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # Це поле вже у вас є
     content = models.TextField()
     date = models.DateTimeField(auto_now=True)
-    name = models.CharField(max_length=200)
-    email = models.EmailField(max_length=200)
-    website = models.CharField(max_length=200)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     parent = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True, related_name='replies')
+
+    @property
+    def author_name(self):
+        # Якщо є прив'язаний автор — беремо його ім'я, інакше використовуємо поле 'name'
+        return self.author.first_name if self.author else self.name
+
+    @property
+    def author_image(self):
+        # Якщо є прив'язаний автор—отримуємо URL профіля, інакше стандартну іконку
+        if self.author and hasattr(self.author, 'profile') and self.author.profile.profile_image:
+            return self.author.profile.profile_image.url
+        return "images/default-avatar.png"
 
 class WebsiteMeta(models.Model):
    title = models.CharField(max_length=200)
@@ -125,3 +173,5 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.event_type} - {self.dog.name}"
+
+

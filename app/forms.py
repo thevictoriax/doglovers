@@ -26,14 +26,23 @@ with open(BREEDS_FILE, encoding="utf-8") as f:
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comments
-        fields = {'content', 'email', 'name'}
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['content'].widget.attrs['placeholder'] = 'Напишіть свій коментар...'
-        self.fields['email'].widget.attrs['placeholder'] = 'Електронна пошта'
-        self.fields['name'].widget.attrs['placeholder'] = "Ім'я"
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'placeholder': 'Напишіть свій коментар...',
+                'rows': 5,
+            }),
+        }
+        labels = {
+            'content': '',  # Встановлюємо порожній ярлик
+        }
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user and user.is_authenticated:
+            self.fields.pop('name', None)
+            self.fields.pop('email', None)
 
 class SubscribeForm(forms.ModelForm):
     class Meta:

@@ -139,15 +139,15 @@
                     <div class="user-comment">
                       <div class="author">
                         <div class="profile-pic">
-                          <img src="{% static 'images/author.svg' %}" alt="" />
+                            <!-- Використовуємо "author_image" для вибору між фото користувача чи стандартного -->
+                            <img src="{{ comment.author_image }}" alt="User Avatar">
                         </div>
                         <div class="details">
-                          <p>{{comment.name}}</p>
-                          <small>{% language 'uk' %}
-                            {{ comment.date|date:"F d, Y" }}
-                            {% endlanguage %}</small>
+                            <!-- Використовуємо "author_name" для отримання правильної назви -->
+                            <p>{{ comment.author_name }}</p>
+                            <small>{% language 'uk' %}{{ comment.date|date:"F d, Y" }}{% endlanguage %}</small>
                         </div>
-                      </div>
+                    </div>
                       <div class="comment-sec-main">
                         <div class="comment-sec">
                           <div class="comment">
@@ -158,49 +158,35 @@
                           <div class="reply">
                             <button onclick="toggleDiv(this)">Відповісти</button>
                           </div>
-                          <div class="comment-box" id="comment-reply-box">
+                         <div class="comment-box reply-form" style="display: none;">
                             <h3>Відповісти на коментар</h3>
-                            <p>
-                              Ваша електронна адреса не буде опублікована. Обов'язкові поля
-                               позначені
-                            </p>
+                            <p>Ваша електронна адреса не буде опублікована</p>
                             <form method="POST">
-                              {% csrf_token %}
-                              {{form.content}}
-                              <div class="grid-3">
-                                <input type="hidden" name="post_id" value="{{post.id}}">
-                                <input type="hidden" name="parent" value="{{comment.id}}">
-                                {{form.name}}
-                                {{form.email}}
-                                {{form.website}}
-                              </div>
-              
-                              <button class="btn btn-primary rounded">
-                                Відповідь
-                              </button>
+                                {% csrf_token %}
+                                {{ form.content }}
+                                <input type="hidden" name="post_id" value="{{ post.id }}">
+                                <input type="hidden" name="parent" value="{{ comment.id }}">
+                                <button class="btn btn-primary rounded">Відповіcти</button>
                             </form>
-                          </div>  
+                        </div>
+
 
                         </div>
                         
                         {% for reply in comment.replies.all %}
                         <div class="public-reply">
-                          <div class="author">
-                            <div class="profile-pic">
-                              <img src="{% static 'images/author.svg' %}" alt="" />
+                            <div class="author">
+                                <div class="profile-pic">
+                                    <img src="{{ reply.author_image }}" alt="User Avatar">
+                                </div>
+                                <div class="details">
+                                    <p>{{ reply.author_name }}</p>
+                                    <small>{% language 'uk' %}{{ reply.date|date:"F d, Y" }}{% endlanguage %}</small>
+                                </div>
                             </div>
-                            <div class="details">
-                              <p>{{reply.name}}</p>
-                              {% language 'uk' %}
-                            {{ reply.date|date:"F d, Y" }}
-                            {% endlanguage %}
+                            <div class="comment">
+                                <p>{{ reply.content }}</p>
                             </div>
-                          </div>
-                          <div class="comment">
-                            <p>
-                              {{reply.content}}
-                            </p>
-                          </div>
                         </div>
                         {% endfor %}
 
@@ -212,26 +198,26 @@
                     {% endfor %}
                   </div>
                 </div>
-                <div class="comment-box">
-                  <h3>Залишити новий коментар під цим дописом</h3>
-                  <p>
-                    Ваша електронна адреса не буде опублікована. Обов'язкові поля
-                               позначені
-                  </p>
-                  <form method="POST">
-                    {% csrf_token %}
-                    {{form.content}}
-                    <div class="grid-3">
-                      <input type="hidden" name="post_id" value="{{post.id}}">
-                      {{form.name}}
-                      {{form.email}}
-                      {{form.website}}
-                    </div>
-                    <button class="btn btn-primary rounded">
-                      Прокоментувати
-                    </button>
-                  </form>
+               {% if user.is_authenticated %}
+               <div class="comment-box general-comment-form">
+                    <h3>Залишити новий коментар під цим дописом</h3>
+                   <p>Ваша електронна адреса не буде опублікована</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <button class="btn btn-primary rounded">Прокоментувати</button>
+                    </form>
                 </div>
+
+                {% else %}
+                <div class="comment-box">
+                    <h3>Авторизація потрібна</h3>
+                    <p>
+                        Ви повинні <a href="{% url 'login' %}">увійти</a> до свого акаунту, щоб залишити коментар.
+                    </p>
+                </div>
+                {% endif %}
               </div>
             </section>
           </div>
@@ -326,3 +312,38 @@
 
     
       {% endblock content %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let mainCommentForm = document.querySelector(".comment-box.general-comment-form"); 
+    let activeReplyForm = null; // Стежимо за активною формою відповіді
+
+    document.querySelectorAll(".reply-button").forEach(button => {
+        button.addEventListener("click", function () {
+            // Знаходимо форму відповіді для поточного коментаря
+            let replyBox = button.closest(".comment-sec-main").querySelector(".comment-box.reply-form");
+
+            // Якщо є вже відкрита форма відповіді і це не поточна — закриваємо її
+            if (activeReplyForm && activeReplyForm !== replyBox) {
+                activeReplyForm.style.display = "none";
+            }
+
+            // Перемикаємо стан поточної форми
+            if (replyBox.style.display === "none" || replyBox.style.display === "") {
+                replyBox.style.display = "block";  // Відкриваємо форму відповіді
+                activeReplyForm = replyBox;       // Запам’ятовуємо активну форму
+                mainCommentForm.style.display = "none"; // Ховаємо загальну форму
+            } else {
+                replyBox.style.display = "none";  // Закриваємо форму відповіді
+                activeReplyForm = null;          // Забуваємо про активну форму
+                
+                // Якщо немає відкритої форми відповіді, повертаємо загальну форму
+                mainCommentForm.style.display = "block";
+            }
+        });
+    });
+});
+</script>
+
+
+

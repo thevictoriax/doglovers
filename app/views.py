@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from django.shortcuts import render, get_object_or_404, redirect
 from app.models import Post, Comments, Tag, Profile, WebsiteMeta, Dog, Event
 from app.forms import CommentForm, SubscribeForm, NewUserForm, PostForm, DogForm, EventForm
-from django.http import HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponseNotAllowed, JsonResponse, Http404
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db.models import Count
@@ -16,6 +16,9 @@ from pathlib import Path
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import is_naive, make_aware
 import pytz
+from django.contrib import messages
+
+
 
 BREEDS_FILE = Path(__file__).resolve().parent / "dog_breeds.json"
 with open(BREEDS_FILE, encoding="utf-8") as f:
@@ -49,63 +52,86 @@ def index(request):
     context = {'posts':posts, 'top_posts': top_posts, 'website_info': website_info, 'recent_posts':recent_posts, 'subscribe_form':subscribe_form, 'subscribe_successful':subscribe_successful, 'featured_blog':featured_blog}
     return render(request, 'app/index.html', context)
 
+
 def post_page(request, slug):
-    post = Post.objects.get(slug=slug)
+    try:
+        # Отримуємо пост
+        post = Post.objects.get(slug=slug)
+    except Post.DoesNotExist:
+        # Якщо посту не існує, видаємо 404
+        raise Http404("Допис не знайдено")
+
+    # Отримуємо коментарі до посту
     comments = Comments.objects.filter(post=post, parent=None)
-    form = CommentForm()
-    
+    form = CommentForm(user=request.user if request.user.is_authenticated else None)
 
-    bookmarked = False
-    if post.bookmarks.filter(id=request.user.id).exists():
-        bookmarked = True
-    is_bookmarked = bookmarked
-
-    liked = False
-    if post.likes.filter(id=request.user.id).exists():
-        liked = True
+    # Логіка для закладок, лайків та взаємодії
+    is_bookmarked = post.bookmarks.filter(id=request.user.id).exists() if request.user.is_authenticated else False
+    post_is_liked = post.likes.filter(id=request.user.id).exists() if request.user.is_authenticated else False
     number_of_likes = post.number_of_likes()
-    post_is_liked = liked
 
-    if request.POST:
-        comment_form = CommentForm(request.POST)
-        if comment_form.is_valid:
+    # Якщо POST-запит (додаємо коментар чи відповідь на коментар)
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            # Якщо користувач не авторизований, повертаємо повідомлення
+            messages.error(request, "Тільки авторизовані користувачі можуть залишати коментарі.")
+            return HttpResponseRedirect(reverse('login'))  # Перенаправляємо на сторінку входу
+
+        comment_form = CommentForm(request.POST, user=request.user)
+        if comment_form.is_valid():
             parent_obj = None
             if request.POST.get('parent'):
-                # save reply
-                parent=request.POST.get('parent')
-                parent_obj = Comments.objects.get(id=parent)
-                if parent_obj:
-                    comment_reply = comment_form.save(commit=False)
-                    comment_reply.parent = parent_obj
-                    comment_reply.post = post
-                    comment_reply.save()
-                    return HttpResponseRedirect(reverse('post_page', kwargs={'slug':slug}))
-            else:
-                comment = comment_form.save(commit=False)
-                postid = request.POST.get('post_id')
-                post = Post.objects.get(id = postid)
-                comment.post = post
-                comment.save()
-                return HttpResponseRedirect(reverse('post_page', kwargs={'slug':slug}))
+                # Створення відповіді на коментар
+                parent_id = request.POST.get('parent')
+                try:
+                    parent_obj = Comments.objects.get(id=parent_id)
+                except Comments.DoesNotExist:
+                    parent_obj = None  # Якщо parent_id є недійсним
 
-    comments_count = comments.count()
-    # Check if the user has viewed the post
+                if parent_obj:
+                    reply = comment_form.save(commit=False)
+                    reply.parent = parent_obj
+                    reply.post = post
+                    reply.author = request.user
+                    reply.save()
+            else:
+                # Залишаємо основний коментар
+                comment = comment_form.save(commit=False)
+                comment.post = post
+                comment.author = request.user
+                comment.save()
+            # Після додання коментаря перенаправляємо назад на сторінку посту
+            return HttpResponseRedirect(reverse('post_page', args=[slug]))
+
+    # Перевірка переглядів (у session) для підрахунку view_count
     if 'viewed_posts' not in request.session:
         request.session['viewed_posts'] = []
-    
     if post.id not in request.session['viewed_posts']:
-        post.view_count += 1
+        post.view_count = post.view_count + 1 if post.view_count else 1
         post.save(update_fields=['view_count'])
         request.session['viewed_posts'].append(post.id)
         request.session.modified = True
-    
-    # sidebar
-    recent_posts= Post.objects.exclude(id=post.id).order_by('-last_updated')[0:3]
-    top_authors = User.objects.annotate(number=Count('post')).order_by('-number')
-    tags = Tag.objects.all()
-    related_posts = Post.objects.exclude(id = post.id).filter(author=post.author)[0:3]
 
-    context = {'post':post, 'form':form, 'comments':comments, 'is_bookmarked':is_bookmarked, 'post_is_liked':  post_is_liked, 'number_of_likes':number_of_likes, 'recent_posts': recent_posts, 'top_authors':top_authors, 'tags':tags, 'related_posts':related_posts, 'comments_count':comments_count}
+    # Додаткові об'єкти для сайдбару (останні публікації, топ-автори, тощо)
+    recent_posts = Post.objects.exclude(id=post.id).order_by('-last_updated')[:3]
+    top_authors = User.objects.annotate(post_count=Count('post')).order_by('-post_count')[:5]
+    tags = Tag.objects.all()
+    related_posts = Post.objects.exclude(id=post.id).filter(author=post.author)[:3]
+
+    # Рендеримо шаблон з усіма даними
+    context = {
+        'post': post,
+        'form': form,
+        'comments': comments,
+        'is_bookmarked': is_bookmarked,
+        'post_is_liked': post_is_liked,
+        'number_of_likes': number_of_likes,
+        'recent_posts': recent_posts,
+        'top_authors': top_authors,
+        'tags': tags,
+        'related_posts': related_posts
+    }
+
     return render(request, 'app/post.html', context)
 
 def tag_page(request, slug):
@@ -144,6 +170,7 @@ def about(request):
     context = {'website_info':website_info}
     return render(request, 'app/about.html', context)
 
+
 def register_user(request):
     form = NewUserForm()
     if request.method == "POST":
@@ -152,16 +179,22 @@ def register_user(request):
             user = form.save(commit=False)
             user.save()
 
-            # Check if a profile already exists for the user
-            if not Profile.objects.filter(user=user).exists():
-                # Creating a profile for the user
-                bio = form.cleaned_data.get('bio')
-                profile_image = request.FILES.get('profile_image')
-                profile = Profile.objects.create(user=user, bio=bio, profile_image=profile_image)
+            bio = form.cleaned_data.get('bio')
+            profile_image = request.FILES.get('profile_image', None)  # Отримуємо картинку профілю або None
+
+            # Перевірка: якщо зображення профілю не передано, використовуємо стандартне
+            if not profile_image:
+                profile_image = None
+
+            profile = Profile.objects.create(
+                user=user,
+                bio=bio,
+                profile_image=profile_image
+            )
 
             login(request, user)
             return redirect("/")
-    context = {'form':form}
+    context = {'form': form}
     return render(request, 'registration/registration.html', context)
 
 
