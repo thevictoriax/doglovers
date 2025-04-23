@@ -34,6 +34,7 @@ urlpatterns = [
    path('remove_event/', views.remove_event, name='remove_event'),
    path('add_event/', views.add_event, name='add_event'),
    path('edit_profile/', views.edit_profile, name='edit_profile'),
+   path('all_tags/', views.all_tags, name='all_tags'),
 
 
 

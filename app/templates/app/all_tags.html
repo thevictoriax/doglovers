@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Любителі собак | Мої вподобання{% endblock title %}
+{% block content %}
+
+<main>
+  <div class="container">
+    <div class="page-top">
+      <div class="top flex">
+        <div class="page-name">
+  <a href="javascript:history.back()" class="learn">
+    <span class="material-icons">keyboard_return</span> Повернутись назад
+  </a>
+  <h1>Теги</h1>
+</div>
+
+      </div>
+    </div>
+  </div>
+</main>
+<section class="sp">
+  <div class="container">
+    <div class="blog-tags">
+    {% for tag in all_tags  %}
+    <p class="tag">
+      <a style="color: white;" href="{% url 'tag_page' tag.slug %}">{{tag.name}}</a>
+    </p>
+    {% endfor %}
+  </div>
+  </div>
+</section>
+
+{% endblock content %}

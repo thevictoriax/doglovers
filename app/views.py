@@ -536,3 +536,7 @@ def edit_profile(request):
         form = EditProfileForm(instance=profile, user=request.user)
 
     return render(request, 'app/edit_profile.html', {'form': form})
+
+def all_tags(request):
+    all_tags = Tag.objects.all()
+    return render(request, 'app/all_tags.html', {'all_tags': all_tags})
