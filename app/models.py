@@ -1,8 +1,12 @@
+import re
+from django.utils.html import escape
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import User
 import uuid
 import requests
+
+
 
 
 class NameGender(models.Model):
@@ -105,6 +109,8 @@ class Comments(models.Model):
     content = models.TextField()
     date = models.DateTimeField(auto_now=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='comments/', null=True, blank=True)
+    thumbnail = models.ImageField(upload_to='comments/thumbnails/', null=True, blank=True, max_length=255)
     parent = models.ForeignKey(
         'self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies'
     )
@@ -118,6 +124,26 @@ class Comments(models.Model):
         if self.author and hasattr(self.author, 'profile') and self.author.profile.profile_image:
             return self.author.profile.profile_image.url
         return "images/default-avatar.png"
+
+    def convert_links(self):
+        """
+        Автоматично конвертує URL у тексті коментаря в клікабельні посилання.
+        """
+        url_pattern = r'(https?://[^\s]+)'  # Пошук "http://" або "https://"
+        linked_text = re.sub(url_pattern, r'<a href="\1" target="_blank" rel="noopener">\1</a>', escape(self.content))
+        return linked_text
+
+    def save(self, *args, **kwargs):
+        from pathlib import Path  # Локальний імпорт модуля Path
+        from app.views import generate_thumbnail  # Локальний імпорт будь-якої функції або допоміжного коду
+
+        super().save(*args, **kwargs)
+
+        if self.image:
+            image_path = self.image.path
+            thumbnail_path = generate_thumbnail(image_path)
+            self.thumbnail.name = thumbnail_path.replace(str(Path(self.image.path).parent) + "/", "")
+            super().save(*args, **kwargs)
 
 class WebsiteMeta(models.Model):
    title = models.CharField(max_length=200)

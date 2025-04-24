@@ -18,9 +18,37 @@ from django.utils.timezone import is_naive, make_aware
 import pytz
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
+from PIL import Image
+
+from PIL import Image
+from pathlib import Path
 
 
+def generate_thumbnail(image_path, size=(150, 150), quality=85):
+    """
+    Створює зменшене прев’ю зображення.
+    Зменшує розмір файлу і фізичні розміри зображення.
 
+    :param image_path: Шлях до вихідного зображення
+    :param size: Максимальні розміри прев'ю (ширина, висота)
+    :param quality: Якість зображення (число від 1 до 100)
+    :return: Шлях до збереженого прев'ю
+    """
+    image = Image.open(image_path)
+    image.thumbnail(size)  # Зменшення зображення і пропорцій
+
+    # Формуємо шлях до прев’ю
+    image_path = Path(image_path)
+    thumbnail_name = f"{image_path.stem[:50]}_thumbnail{image_path.suffix}"
+    thumbnail_path = image_path.parent / thumbnail_name
+
+    # Зберігаємо зображення з опціями стиснення
+    if image.format == 'JPEG':  # Для JPG забезпечуємо якість
+        image.save(thumbnail_path, 'JPEG', quality=quality, optimize=True)
+    else:  # Для інших форматів зберігаємо стандартно
+        image.save(thumbnail_path, optimize=True)
+
+    return str(thumbnail_path)
 
 
 BREEDS_FILE = Path(__file__).resolve().parent / "dog_breeds.json"
@@ -95,11 +123,15 @@ def post_page(request, slug):
                     reply.parent = parent_obj
                     reply.post = post
                     reply.author = request.user
+                    if 'image' in request.FILES:  # Перевірка на наявність зображення
+                        reply.image = request.FILES['image']
                     reply.save()
             else:
                 comment = comment_form.save(commit=False)
                 comment.post = post
                 comment.author = request.user
+                if 'image' in request.FILES:  # Додаємо перевірку, чи отримали файл
+                    comment.image = request.FILES['image']
                 comment.save()
 
             # Повертаємо відповідь, щоб додати новий коментар в контекст без перенаправлення

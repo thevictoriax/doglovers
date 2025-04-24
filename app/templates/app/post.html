@@ -12,6 +12,8 @@
               <div class="top flex">
                 <div class="page-name">
   <a href="javascript:history.back()" class="learn">
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
     <span class="material-icons">keyboard_return</span> Повернутись назад
   </a>
   <h1>Допис</h1>
@@ -138,7 +140,7 @@
     <div class="user-comment">
         <div class="author">
             <div class="profile-pic">
-                <img src="{{ comment.author_image }}" alt="User Avatar">
+                <img src="{{ comment.author_image }}" alt="User Avatar" class="comment-img">
             </div>
             <div class="details">
                 <p>{{ comment.author_name }}</p>
@@ -148,7 +150,24 @@
         <div class="comment-sec-main">
             <div class="comment-sec">
                 <div class="comment">
-                    <p>{{ comment.content }}</p>
+                    <p>{{ comment.convert_links|safe }}</p>
+                         {% if comment.thumbnail %}
+<div class="comment-image">
+    <a href="{{ comment.image.url }}" data-lightbox="comment-images">
+        <img src="{{ comment.thumbnail.url }}" alt="Comment thumbnail" 
+             style="width: 150px; height: 100px; object-fit: contain;">
+    </a>
+</div>
+{% else %}
+    {% if comment.image %}
+        <div class="comment-image">
+            <a href="{{ comment.image.url }}" data-lightbox="comment-images">
+                <img src="{{ comment.image.url }}" alt="Comment image" 
+                     style="width: 150px; height: 100px; object-fit: contain;">
+            </a>
+        </div>
+    {% endif %}
+{% endif %}
                 </div>
                 <!-- Додати кнопку видалення -->
                 {% if user.is_authenticated and user == comment.author %}
@@ -168,49 +187,72 @@
                     <button onclick="toggleDiv(this)">Відповісти</button>
                 </div>
                 <div class="comment-box reply-form" style="display: none;">
-                    <h3>Відповісти на коментар</h3>
-                    <form method="POST">
-                        {% csrf_token %}
-                        {{ form.content }}
-                        <input type="hidden" name="post_id" value="{{ post.id }}">
-                        <input type="hidden" name="parent" value="{{ comment.id }}">
-                        <button class="btn btn-primary rounded">Відповісти</button>
-                    </form>
-                </div>
+    <h3>Відповісти на коментар</h3>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.content }}
+        </div>
+        <input type="hidden" name="post_id" value="{{ post.id }}">
+        <input type="hidden" name="parent" value="{{ comment.id }}">
+        <div class="form-group">
+            <label for="reply-image-{{ comment.id }}" class="icon-label" title="Додати зображення">
+                <i class="material-icons">image</i>
+            </label>
+            <input type="file" id="reply-image-{{ comment.id }}" name="image" style="display: none;">
+        </div>
+        <button class="btn btn-primary rounded">Відповісти</button>
+    </form>
+</div>
             </div>
                         
                         {% for reply in comment.replies.all %}
-                <div class="public-reply">
-                    <div class="author">
-                        <div class="profile-pic">
-                            <img src="{{ reply.author_image }}" alt="User Avatar">
-                        </div>
-                        <div class="details">
-                            <p>{{ reply.author_name }}</p>
-                            <small>{% language 'uk' %}{{ reply.date|date:"F d, Y" }}{% endlanguage %}</small>
-                        </div>
-                    </div>
-                    <div class="comment">
-                        <p>{{ reply.content }}</p>
-                    </div>
-                         <!-- Додати кнопку видалення для відповіді -->
-                <div class="button" style="display: none;">
-{% if user.is_authenticated and user == comment.author %}
-  <!-- Перенесена кнопка "Видалити" нижче -->
-  <div style="margin-top: 10px;">
-    <form method="POST" action="{% url 'post_page' post.slug %}">
-      {% csrf_token %}
-      <input type="hidden" name="comment_id" value="{{ comment.id }}">
-      <button type="submit" name="delete_comment" style="background: none; border: none; color: red; cursor: pointer;">
-  Видалити
-</button>
-
-    </form>
-  </div>
-  {% endif %}
-                </div>
-                            </div>
-            {% endfor %}
+<div class="public-reply">
+    <div class="author">
+        <div class="profile-pic">
+            <img src="{{ reply.author_image }}" alt="User Avatar">
+        </div>
+        <div class="details">
+            <p>{{ reply.author_name }}</p>
+            <small>{% language 'uk' %}{{ reply.date|date:"F d, Y" }}{% endlanguage %}</small>
+        </div>
+    </div>
+    <div class="comment">
+        <p>{{ reply.content }}</p>
+        
+        {% if reply.thumbnail %}
+        <div class="reply-image">
+            <a href="{{ reply.image.url }}" data-lightbox="reply-images">
+                <img src="{{ reply.thumbnail.url }}" alt="Reply thumbnail" 
+                     style="width: 150px; height: 100px; object-fit: contain;">
+            </a>
+        </div>
+        {% else %}
+            {% if reply.image %}
+            <div class="reply-image">
+                <a href="{{ reply.image.url }}" data-lightbox="reply-images">
+                    <img src="{{ reply.image.url }}" alt="Reply image" 
+                         style="width: 150px; height: 100px; object-fit: contain;">
+                </a>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+    
+    <!-- Додати кнопку видалення для відповіді -->
+    {% if user.is_authenticated and user == reply.author %}
+    <div style="margin-top: 10px;">
+        <form method="POST" action="{% url 'post_page' post.slug %}">
+            {% csrf_token %}
+            <input type="hidden" name="comment_id" value="{{ reply.id }}">
+            <button type="submit" name="delete_comment" style="background: none; border: none; color: red; cursor: pointer;">
+                Видалити
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
 
                         
 
@@ -221,16 +263,23 @@
                   </div>
                 </div>
                {% if user.is_authenticated %}
-               <div class="comment-box general-comment-form">
-                    <h3>Залишити новий коментар під цим дописом</h3>
-                   <p>Ваша електронна адреса не буде опублікована</p>
-                    <form method="POST">
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <input type="hidden" name="post_id" value="{{ post.id }}">
-                        <button class="btn btn-primary rounded">Прокоментувати</button>
-                    </form>
-                </div>
+              <div class="comment-box general-comment-form">
+    <h3>Залишити новий коментар під цим дописом</h3>
+    <p>Ваша електронна адреса не буде опублікована</p>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.content }}
+        </div>
+        <div class="form-group">
+            <label for="comment-image" class="icon-label" title="Додати зображення"> <!-- Лейбл з іконкою -->
+                <i class="material-icons">image</i> <!-- Матеріальна іконка, можна змінити -->
+            </label>
+            <input type="file" id="comment-image" name="image" style="display: none;"> <!-- Сховане поле -->
+        </div>
+        <button class="btn btn-primary rounded">Прокоментувати</button>
+    </form>
+</div>
 
                 {% else %}
                 <div class="comment-box">
@@ -365,7 +414,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
+
 </script>
-
-
 

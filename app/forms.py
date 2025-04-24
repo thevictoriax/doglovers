@@ -27,7 +27,7 @@ with open(BREEDS_FILE, encoding="utf-8") as f:
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comments
-        fields = ['content']
+        fields = ['content', 'image']
         widgets = {
             'content': forms.Textarea(attrs={
                 'placeholder': 'Напишіть свій коментар...',

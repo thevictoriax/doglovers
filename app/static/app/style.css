@@ -34,6 +34,21 @@ img {
   width: 100%;
 }
 
+.comment-img {
+    max-width: none; /* Вимикає глобальне правило */
+    width: 150px;
+    height: 100px;
+    object-fit: contain;
+}
+
+.reply-image img {
+    max-width: 150px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
 .container {
   max-width: 1220px;
   margin: auto;
@@ -49,6 +64,7 @@ p,
 a {
   font-size: 1.6rem;
   color: var(--des);
+   text-decoration: underline !important;
 }
 
 input,
@@ -843,6 +859,7 @@ p span {
 
 p a {
   color: var(--green);
+  text-decoration: underline !important;
 }
 
 .grid {
