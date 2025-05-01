@@ -173,6 +173,7 @@ class Event(models.Model):
         ('treatment_tablet', 'Лікувальні таблетки'),
         ('grooming', 'Грумінг'),
         ('vaccination', 'Вакцинація'),
+        ('birthday', 'День народження'),
         ('other', 'Інше'),
     ]
     dog = models.ForeignKey(

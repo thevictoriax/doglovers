@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
+from uuid import uuid4
+
 from django.shortcuts import render, get_object_or_404, redirect
 from app.models import Post, Comments, Tag, Profile, WebsiteMeta, Dog, Event
 from app.forms import CommentForm, SubscribeForm, NewUserForm, PostForm, DogForm, EventForm, EditProfileForm
@@ -366,6 +368,19 @@ def add_dog(request):
             dog = form.save(commit=False)
             dog.owner = request.user  # Прив'язуємо собаку до авторизованого користувача
             dog.save()
+            # Створення події на день народження, якщо задана дата
+            if dog.birth_date:
+                birthday_datetime = datetime.combine(dog.birth_date, time(10, 0))  # 10:00 ранку
+                event = Event.objects.create(
+                    name=f"День народження {dog.name}",
+                    start=birthday_datetime,
+                    end=birthday_datetime + timedelta(hours=1),
+                    dog=dog,
+                    repeat_interval='yearly',  # Повторюється щороку
+                    series_id=uuid4(),  # Унікальний ідентифікатор серії
+                    event_type='birthday'
+                )
+
             return HttpResponseRedirect('my_dogs')
     else:
         form = DogForm()
@@ -373,16 +388,41 @@ def add_dog(request):
 
 @login_required
 def edit_dog(request, pk):
-    # Отримуємо об'єкт собаки за ідентифікатором (або повертаємо 404)
     dog = get_object_or_404(Dog, pk=pk)
+    old_birth_date = dog.birth_date
 
     if request.method == "POST":
         form = DogForm(request.POST, request.FILES, instance=dog)
         if form.is_valid():
-            form.save()
-            return redirect('/my_dogs/')  # Повернення на сторінку з усіма собаками
+            dog = form.save()
+
+            if dog.birth_date != old_birth_date and dog.birth_date is not None:
+                # Видаляємо старі дні народження цієї собаки
+                Event.objects.filter(
+                    dog=dog,
+                    event_type='birthday',
+                    repeat_interval='yearly'
+                ).delete()
+
+                start = datetime.combine(dog.birth_date, time(10, 0))
+                end = start + timedelta(hours=1)
+                series_id = uuid4()
+
+                # Створюємо 10 повторюваних подій на кожен рік
+                for i in range(10):
+                    Event.objects.create(
+                        name=f"День народження {dog.name}",
+                        start=start + relativedelta(years=i),
+                        end=end + relativedelta(years=i),
+                        dog=dog,
+                        repeat_interval='yearly',
+                        series_id=series_id,
+                        event_type='birthday'
+                    )
+
+            return redirect('/my_dogs/')
     else:
-        form = DogForm(instance=dog)  # Існуючі дані передаються у форму
+        form = DogForm(instance=dog)
 
     return render(request, 'app/edit_dog.html', {'form': form, 'dog': dog})
 
