@@ -202,3 +202,17 @@ class Event(models.Model):
         return f"{self.name} - {self.event_type} - {self.dog.name}"
 
 
+class ReminderLog(models.Model):
+    REMINDER_CHOICES = [
+        ('week', 'За тиждень'),
+        ('day', 'За день'),
+        ('3h', 'За 3 години'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    event = models.ForeignKey('Event', on_delete=models.CASCADE)
+    reminder_type = models.CharField(max_length=10, choices=REMINDER_CHOICES)
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'event', 'reminder_type')  # щоб не дублювати

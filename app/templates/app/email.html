@@ -1,0 +1,39 @@
+<!DOCTYPE html> 
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Нагадування про подію</title>
+</head>
+<body style="margin:0; padding:0; background-color:#ffffff; font-family:Arial, sans-serif; color:#333;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#ffffff;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="20" cellspacing="0" style="border:1px solid #e0e0e0; border-radius:12px;">
+                    <tr>
+                        <td align="center" style="padding-top:30px;">
+                            <img src="https://raw.githubusercontent.com/thevictoriax/doglovers/main/app/static/app/images/doglovers.png" alt="Logo" style="width: 60px; height: 55px;">
+                            <h1 style="color:#436850; font-size:24px; margin:0;">Нагадування про подію</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:16px; line-height:1.5; color:#333;">
+                            <p>Привіт, <strong>{{ user_name }}</strong>!</p>
+                            <p>Нагадуємо, що <strong>{{ event_name }}</strong> для {{ dog_name }} відбудеться <strong>{{ event_date }}</strong> о <strong>{{ event_time }}</strong>.</p>
+                            <p>Будь ласка, переконайтеся, що ви готові до цієї події.</p>
+                            <div style="text-align:center; margin:30px 0;">
+                                <a href="{{ event_link }}" style="background-color:#436850; color:#fff; text-decoration:none; padding:12px 24px; border-radius:8px; display:inline-block;">Переглянути в календарі</a>
+                            </div>
+                            <p>З любов'ю,<br>Команда DogLovers 🐾</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:12px; color:#888; text-align:center; padding-bottom:20px;">
+                            Ви отримали цей лист, бо маєте активні події у своєму календарі.
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

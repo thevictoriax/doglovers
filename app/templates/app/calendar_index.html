@@ -24,21 +24,26 @@
         <div class="links">
           <a href="{% url 'index' %}">Головна</a>
 {#          <a href="{% url 'about' %}">Про блог</a>#}
+        {% if user.is_authenticated %}
           <a href="{% url 'list_dogs' %}">Мої собаки</a>
+        {% endif %}
           <a href="{% url 'map' %}">Карта</a>
-          <a href="{% url 'all_posts' %}">Усі дописи</a>
+          <a href="{% url 'all_posts' %}">Дописи</a>
+        <a href="{% url 'all_tags' %}">Теги</a>
             <a href="{% url 'user_calendar' %}">Календар</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'author_page' user.profile.slug %}">Мій профіль</a>
+        {% endif %}
           {% if user.is_authenticated %}
-          <a href="{% url 'all_bookmarked_posts' %}">Мої закладки</a>
-          {% endif %}
-          {% if user.is_authenticated %}
-          <a href="{% url 'all_liked_posts' %}">Мої вподобання</a>
-          {% endif %}
-          {% if user.is_authenticated %}
-          <a href="{% url 'user_posts' %}">Мої дописи</a>
-          {% endif %}
-          {% if user.is_authenticated %}
-          <a href="{% url 'add_post' %}">Додати допис</a>
+          <div class="dropdown">
+    <button class="dropbtn">Дописи <i class="fa fa-caret-down"></i></button>
+    <div class="dropdown-content">
+      <a href="{% url 'user_posts' %}">Мої дописи</a>
+      <a href="{% url 'all_bookmarked_posts' %}">Мої закладки</a>
+      <a href="{% url 'all_liked_posts' %}">Мої вподобання</a>
+      <a href="{% url 'add_post' %}">Додати допис</a>
+    </div>
+  </div>
           {% endif %}
         </div>
         <div class="action-btn">
@@ -51,9 +56,8 @@
           <a href="{% url 'login' %}"
             ><button class="btn btn-scoundary">Авторизуватись</button></a
           >
-          <a href="{% url 'register' %}"></a>
-            <button class="btn btn-primary">Зареєструватись</button></a
-          >
+          <a href="{% url 'register' %}"
+            <button class="btn btn-primary">Зареєструватись</button></a>
           <i class="uil uil-align-center-alt menu" onclick="menu()"></i>
         {% endif %}
         </div>
@@ -263,5 +267,89 @@ $(document).ready(function () {
     margin-bottom: 15px;
     padding: 8px;
 }
+
+/* Основні стилі для посилань у хедері */
+  .links {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    font-family: sans-serif;
+  }
+
+  .links a {
+    color: #333;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: 0.3s ease-in-out;
+  }
+
+  .links a:hover {
+    background-color: #f1f1f1;
+    color: #436850;
+  }
+
+  /* ---- Dropdown Menu ---- */
+
+  /* Контейнер Dropdown */
+  .dropdown {
+    position: relative;
+    display: inline-block;
+    font-family: sans-serif;
+  }
+
+  /* Кнопка Dropdown */
+  .dropbtn {
+    background-color: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #436850;
+    font-weight: bold;
+    padding: 8px 16px;
+    transition: 0.3s ease-in-out;
+  }
+
+  .dropbtn:hover {
+    color: #436850;
+    background-color: #f3f3f3;
+    border-radius: 4px;
+  }
+
+  /* Контент Dropdown */
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: max-content;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    border-radius: 8px;
+    padding: 8px 0;
+    white-space: nowrap; /* Щоб текст не переносився */
+  }
+
+  /* Посилання всередині Dropdown */
+  .dropdown-content a {
+    color: #333;
+    font-size: 14px;
+    padding: 10px 16px;
+    text-decoration: none;
+    display: block;
+    font-weight: 500;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+  }
+
+  .dropdown-content a:hover {
+    background-color: #436850;
+    color: white;
+    border-radius: 4px;
+  }
+
+  /* Показ дропдауна при наведенні */
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
     </style>
 </html>

@@ -1,0 +1,50 @@
+from django.core.management.base import BaseCommand
+from django.utils.timezone import now
+from datetime import timedelta
+from app.models import Event, ReminderLog
+from app.views import send_event_reminder
+
+class Command(BaseCommand):
+    help = 'Надсилає нагадування за 7 днів, 1 день і 3 години до події з логуванням'
+
+    def handle(self, *args, **kwargs):
+        current_time = now()
+
+        reminder_types = {
+            "week": current_time + timedelta(days=7),
+            "day": current_time + timedelta(days=1),
+            "3h": current_time + timedelta(hours=3),
+        }
+
+        labels = {
+            "week": "за тиждень",
+            "day": "завтра",
+            "3h": "через 3 години",
+        }
+
+        for reminder_key, target_time in reminder_types.items():
+            tolerance = timedelta(hours=12)
+            start_range = target_time - tolerance
+            end_range = target_time + tolerance
+
+            events = Event.objects.filter(start__range=(start_range, end_range))
+
+            self.stdout.write(f"[DEBUG] Шукаємо події у діапазоні: {start_range} — {end_range}")
+            self.stdout.write(f"[DEBUG] Знайдено подій: {events.count()}")
+
+            for event in events:
+                user = event.dog.owner
+                to_email = user.email
+
+                # Перевірка, чи вже було надіслано нагадування
+                if ReminderLog.objects.filter(user=user, event=event, reminder_type=reminder_key).exists():
+                    continue
+
+                if to_email:
+                    try:
+                        send_event_reminder(to_email, event, labels[reminder_key])
+                        ReminderLog.objects.create(user=user, event=event, reminder_type=reminder_key)
+                        self.stdout.write(f"✅ {labels[reminder_key]} — '{event.name}' → {to_email}")
+                    except Exception as e:
+                        self.stderr.write(f"❌ Помилка: {to_email} — {str(e)}")
+

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, time
 from uuid import uuid4
-
+from django.core.mail import send_mail
+from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from app.models import Post, Comments, Tag, Profile, WebsiteMeta, Dog, Event
 from app.forms import CommentForm, SubscribeForm, NewUserForm, PostForm, DogForm, EventForm, EditProfileForm
@@ -21,7 +22,8 @@ import pytz
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from PIL import Image
-
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 from PIL import Image
 from pathlib import Path
 
@@ -612,3 +614,39 @@ def edit_profile(request):
 def all_tags(request):
     all_tags = Tag.objects.all()
     return render(request, 'app/all_tags.html', {'all_tags': all_tags})
+
+
+
+def send_event_reminder(to_email, event, when_label):
+    subject = f"🔔 {when_label.capitalize()} подія: {event.name}"
+
+    # Рендеримо HTML-шаблон з контекстом
+    html_content = render_to_string('app/email.html', {
+        'user_name': event.dog.owner.first_name,
+        'event_name': event.name,
+        'event_type': event.get_event_type_display(),
+        'dog_name': event.dog.name,
+        'event_date': event.start.strftime('%d.%m.%Y'),
+        'event_time': event.start.strftime('%H:%M'),
+        'when_label': when_label,
+        'calendar_url': 'http://localhost:8000/calendar/'  # або з settings.SITE_URL
+    })
+
+    # Текстовий варіант (як fallback для поштових клієнтів без HTML)
+    text_content = (
+        f"Привіт, {event.dog.owner.first_name}!\n\n"
+        f"Нагадуємо, що {when_label} відбудеться подія '{event.name}' "
+        f"({event.get_event_type_display()}) для собаки {event.dog.name}.\n"
+        f"Початок: {event.start.strftime('%d.%m.%Y %H:%M')}\n\n"
+        f"З найкращими побажаннями,\n"
+        f"Любителі собак 🐾"
+    )
+
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=settings.EMAIL_HOST_USER,
+        to=[to_email]
+    )
+    email.attach_alternative(html_content, "text/html")
+    email.send(fail_silently=False)
