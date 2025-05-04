@@ -203,16 +203,18 @@ class DogForm(forms.ModelForm):
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ['start', 'end', 'dog', 'repeat_interval', 'event_type']
+        fields = ['start', 'end', 'dog', 'repeat_interval', 'repeat_until', 'event_type']
         widgets = {
             'start': DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
             'end': DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'repeat_until': DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
         }
         labels = {
             'start': 'Початок',
             'end': 'Завершення',
             'dog': 'Собака',
             'repeat_interval': 'Інтервал повторення',
+            'repeat_until': 'Кінцева дата повторення',
             'event_type': 'Тип події',
         }
 

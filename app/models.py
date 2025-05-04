@@ -193,6 +193,7 @@ class Event(models.Model):
         null=True,
         choices=[('none', 'Без повторень'), ('daily', 'Щодня'), ('weekly', 'Щотижня'), ('monthly', 'Щомісяця'), ('yearly', 'Щороку')]
     )
+    repeat_until = models.DateTimeField(null=True, blank=True)
     series_id = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)  # Унікальний ідентифікатор серії
 
     class Meta:

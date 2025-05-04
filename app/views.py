@@ -553,10 +553,11 @@ def add_event(request):
             # Генеруємо повторювані події
             series_id = event.series_id
             repeat_interval = event.repeat_interval
-            if repeat_interval and repeat_interval != 'none':
+            repeat_until = event.repeat_until
+            if repeat_interval and repeat_interval != 'none' and repeat_until:
                 start = event.start
                 end = event.end
-                for i in range(1, 12):  # 12 повторень
+                for i in range(1, 12):  # Максимум 12 повторень
                     if repeat_interval == 'daily':
                         start += timedelta(days=1)
                         end += timedelta(days=1)
@@ -569,6 +570,10 @@ def add_event(request):
                     elif repeat_interval == 'yearly':
                         start += relativedelta(years=1)
                         end += relativedelta(years=1)
+
+                    # Перевіряємо, чи не перевищує дата повторення кінцеву
+                    if start > repeat_until:
+                        break
 
                     Event.objects.create(
                         name=event.name,
@@ -585,7 +590,6 @@ def add_event(request):
     else:
         form = EventForm(user=request.user)
         return render(request, 'app/add_event.html', {'form': form})
-
 
 
 
