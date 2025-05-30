@@ -26,7 +26,6 @@ class Command(BaseCommand):
             tolerance = timedelta(hours=12)
             start_range = target_time - tolerance
             end_range = target_time + tolerance
-
             events = Event.objects.filter(start__range=(start_range, end_range))
 
             self.stdout.write(f"[DEBUG] Шукаємо події у діапазоні: {start_range} — {end_range}")
@@ -35,11 +34,8 @@ class Command(BaseCommand):
             for event in events:
                 user = event.dog.owner
                 to_email = user.email
-
-                # Перевірка, чи вже було надіслано нагадування
                 if ReminderLog.objects.filter(user=user, event=event, reminder_type=reminder_key).exists():
                     continue
-
                 if to_email:
                     try:
                         send_event_reminder(to_email, event, labels[reminder_key])

@@ -272,10 +272,10 @@
             {{ form.content }}
         </div>
         <div class="form-group">
-            <label for="comment-image" class="icon-label" title="Додати зображення"> <!-- Лейбл з іконкою -->
-                <i class="material-icons">image</i> <!-- Матеріальна іконка, можна змінити -->
+            <label for="comment-image" class="icon-label" title="Додати зображення"> 
+                <i class="material-icons">image</i> 
             </label>
-            <input type="file" id="comment-image" name="image" style="display: none;"> <!-- Сховане поле -->
+            <input type="file" id="comment-image" name="image" style="display: none;"> 
         </div>
         <button class="btn btn-primary rounded">Прокоментувати</button>
     </form>
@@ -292,9 +292,7 @@
               </div>
             </section>
           </div>
-          <!-- left layout end -->
 
-          <!-- right layout -->
           <div class="right">
             <div class="block">
               <h2 class="title2">Останні дописи</h2>
@@ -344,7 +342,6 @@
                   </div>
                 </div>
               </a>
-              <!-- card end-->
               {% endfor %}    
             </div>
             <div class="block">
@@ -377,7 +374,6 @@
               </div>
             </div>
           </div>
-          <!-- right layout end -->
         </div>
       </div>
 
@@ -387,28 +383,21 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     let mainCommentForm = document.querySelector(".comment-box.general-comment-form");
-    let activeReplyForm = null; // Стежимо за активною формою відповіді
+    let activeReplyForm = null; 
 
     document.querySelectorAll(".reply-button").forEach(button => {
         button.addEventListener("click", function () {
-            // Знаходимо форму відповіді для поточного коментаря
             let replyBox = button.closest(".comment-sec-main").querySelector(".comment-box.reply-form");
-
-            // Якщо є вже відкрита форма відповіді і це не поточна — закриваємо її
             if (activeReplyForm && activeReplyForm !== replyBox) {
                 activeReplyForm.style.display = "none";
             }
-
-            // Перемикаємо стан поточної форми
             if (replyBox.style.display === "none" || replyBox.style.display === "") {
-                replyBox.style.display = "block";  // Відкриваємо форму відповіді
-                activeReplyForm = replyBox;       // Запам’ятовуємо активну форму
-                mainCommentForm.style.display = "none"; // Ховаємо загальну форму
+                replyBox.style.display = "block"; 
+                activeReplyForm = replyBox;       
+                mainCommentForm.style.display = "none"; 
             } else {
-                replyBox.style.display = "none";  // Закриваємо форму відповіді
-                activeReplyForm = null;          // Забуваємо про активну форму
-
-                // Якщо немає відкритої форми відповіді, повертаємо загальну форму
+                replyBox.style.display = "none"; 
+                activeReplyForm = null;
                 mainCommentForm.style.display = "block";
             }
         });

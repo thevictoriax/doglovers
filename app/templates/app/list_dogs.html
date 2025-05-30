@@ -20,7 +20,6 @@
     <a href="{% url 'add_dog' %}" class="btn-add-pet">Додати улюбленця
     </a>
   </div>
-  <!-- Section for Dogs -->
   <section class="sp">
     <div class="container">
       <h1 class="sec-title">Профілі улюбленців</h1>
@@ -45,7 +44,6 @@
           <a href="{% url 'edit_dog' dog.id %}" class="btn btn-edit">Редагувати</a>
           </div>
         </div>
-        <!-- Dog card end -->
         {% empty %}
         <p>Поки що у вас немає зареєстрованих собак.</p>
         {% endfor %}

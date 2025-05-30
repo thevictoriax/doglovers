@@ -53,7 +53,7 @@
           <a href="{% url 'list_dogs' %}">Мої собаки</a>
         {% endif %}
           <a href="{% url 'map' %}">Карта</a>
-          <a href="{% url 'all_posts' %}">Дописи</a>
+          <a href="{% url 'all_posts' %}">Усі дописи</a>
         <a href="{% url 'all_tags' %}">Теги</a>
             <a href="{% url 'user_calendar' %}">Календар</a>
         {% if user.is_authenticated %}
@@ -162,7 +162,6 @@
   </body>
 </html>
 <style>
-  /* Основні стилі для посилань у хедері */
   .links {
     display: flex;
     gap: 20px;
@@ -184,7 +183,6 @@
     color: #436850;
   }
 
-  /* ---- Dropdown Menu ---- */
 
   /* Контейнер Dropdown */
   .dropdown {
@@ -221,7 +219,7 @@
     z-index: 10;
     border-radius: 8px;
     padding: 8px 0;
-    white-space: nowrap; /* Щоб текст не переносився */
+    white-space: nowrap;
   }
 
   /* Посилання всередині Dropdown */

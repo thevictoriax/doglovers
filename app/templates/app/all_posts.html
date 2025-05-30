@@ -42,13 +42,11 @@
                 </div>
               </div>
             </a>
-            <!-- card end-->
           {% endfor %}
         </div>
       </div>
     </section>
-
-    <!-- Pagination -->
+  
     <div class="pagination">
       <span class="current">
         {% trans "Сторінка" %} {{ all_posts.number }} {% trans "з" %} {{ all_posts.paginator.num_pages }}.
@@ -66,7 +64,6 @@
         {% endif %}
       </div>
     </div>
-    <!-- End Pagination -->
 
   </div>
 </main>

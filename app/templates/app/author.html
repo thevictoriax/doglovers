@@ -35,7 +35,6 @@
                 <h1 class="sec-title">Популярні дописи</h1>
                 <div class="grid-2 blog">
                     {% for post in top_posts %}
-                  <!-- card -->
                   <a href="{% url 'post_page' post.slug %}">
                     <div class="card">
                       <div class="post-img">
@@ -61,7 +60,6 @@
                       </div>
                     </div>
                   </a>
-                  <!-- card end-->
                   {% empty %}
                   <p>Автор ще не створив дописів</p>
                   {% endfor %}
@@ -73,7 +71,6 @@
                 <h1 class="sec-title">Нові дописи</h1>
                 <div class="grid-3 blog-grid">
                     {% for post in recent_posts %}
-                  <!-- card -->
                   <a href="{% url 'post_page' post.slug %}">
                     <div class="card">
                       <div class="post-img">
@@ -99,7 +96,6 @@
                       </div>
                     </div>
                   </a>
-                  <!-- card end-->
                   {% empty %}
                   <p>Автор ще не створив дописів</p>
                   {% endfor %}
@@ -113,9 +109,7 @@
               </div> {% endcomment %}
             </section>
           </div>
-          <!-- left layout end -->
-
-          <!-- right layout -->
+         
           <div class="right">
             <div class="block">
               <h2 class="title2">Інші автори</h2>
@@ -139,7 +133,6 @@
             </div>
 
           </div>
-          <!-- right layout end -->
         </div>
       </div>
 {% endblock content %}
@@ -153,13 +146,13 @@
   text-align: center;
   text-decoration: none;
   color: #fff;
-  background-color: #436850; /* Колір кнопки */
+  background-color: #436850;
   border-radius: 5px;
   transition: background-color 0.3s ease-in-out;
 }
 
 .btn:hover {
-  background-color: #2e8555; /* Колір при наведенні */
+  background-color: #2e8555; 
   text-decoration: none;
 }
 

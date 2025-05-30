@@ -10,8 +10,8 @@ import requests
 
 
 class NameGender(models.Model):
-    name = models.CharField(max_length=100, unique=True)  # Ім'я користувача
-    gender = models.CharField(max_length=10)  # male, female або unknown
+    name = models.CharField(max_length=100, unique=True)
+    gender = models.CharField(max_length=10)
 
     def __str__(self):
         return f"{self.name}: {self.gender}"
@@ -29,10 +29,8 @@ class Profile(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             self.slug = self.generate_unique_slug(self.user.username)
-
-        # Встановлюємо дефолтну фотографію, якщо фото не завантажено
         if not self.profile_image:
-            gender = self.detect_gender(self.user.first_name)  # Визначення статі з імені
+            gender = self.detect_gender(self.user.first_name)
             if gender == 'female':
                 self.profile_image = 'images/female.png'
             elif gender == 'male':
@@ -43,19 +41,15 @@ class Profile(models.Model):
         super(Profile, self).save(*args, **kwargs)
 
     def detect_gender(self, name):
-        # Перевіряємо, чи є ім'я в кеші
         try:
             cached_gender = NameGender.objects.get(name=name.lower())
             return cached_gender.gender
         except NameGender.DoesNotExist:
-            # Якщо немає в кеші, робимо API-запит
             api_url = f"https://api.genderize.io/?name={name}"
             try:
                 response = requests.get(api_url)
                 data = response.json()
                 gender = data.get('gender', 'unknown')
-
-                # Зберігаємо в кеші
                 NameGender.objects.create(name=name.lower(), gender=gender)
                 return gender
             except requests.RequestException:
@@ -105,7 +99,7 @@ class Post(models.Model):
         return self.likes.count()
 
 class Comments(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # Це поле вже у вас є
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     content = models.TextField()
     date = models.DateTimeField(auto_now=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -126,16 +120,13 @@ class Comments(models.Model):
         return "images/default-avatar.png"
 
     def convert_links(self):
-        """
-        Автоматично конвертує URL у тексті коментаря в клікабельні посилання.
-        """
         url_pattern = r'(https?://[^\s]+)'  # Пошук "http://" або "https://"
         linked_text = re.sub(url_pattern, r'<a href="\1" target="_blank" rel="noopener">\1</a>', escape(self.content))
         return linked_text
 
     def save(self, *args, **kwargs):
-        from pathlib import Path  # Локальний імпорт модуля Path
-        from app.views import generate_thumbnail  # Локальний імпорт будь-якої функції або допоміжного коду
+        from pathlib import Path
+        from app.views import generate_thumbnail
 
         super().save(*args, **kwargs)
 
@@ -194,7 +185,7 @@ class Event(models.Model):
         choices=[('none', 'Без повторень'), ('daily', 'Щодня'), ('weekly', 'Щотижня'), ('monthly', 'Щомісяця'), ('yearly', 'Щороку')]
     )
     repeat_until = models.DateTimeField(null=True, blank=True)
-    series_id = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)  # Унікальний ідентифікатор серії
+    series_id = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
 
     class Meta:
         db_table = "tblevents"
@@ -216,4 +207,4 @@ class ReminderLog(models.Model):
     sent_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'event', 'reminder_type')  # щоб не дублювати
+        unique_together = ('user', 'event', 'reminder_type')

@@ -13,6 +13,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/locale/uk.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 </head>
 <body>
 <header>
@@ -28,7 +30,7 @@
           <a href="{% url 'list_dogs' %}">Мої собаки</a>
         {% endif %}
           <a href="{% url 'map' %}">Карта</a>
-          <a href="{% url 'all_posts' %}">Дописи</a>
+          <a href="{% url 'all_posts' %}">Усі дописи</a>
         <a href="{% url 'all_tags' %}">Теги</a>
             <a href="{% url 'user_calendar' %}">Календар</a>
         {% if user.is_authenticated %}

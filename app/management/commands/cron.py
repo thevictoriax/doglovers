@@ -5,10 +5,10 @@ from app.models import Event, ReminderLog
 from app.views import send_event_reminder
 
 class RemindEventsCronJob(CronJobBase):
-    RUN_EVERY_MINS = 60  # кожну годину
+    RUN_EVERY_MINS = 60
 
     schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
-    code = 'app.remind_events_cron'  # унікальний код
+    code = 'app.remind_events_cron'
 
     def do(self):
         current_time = now()

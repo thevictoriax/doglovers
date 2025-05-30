@@ -9,31 +9,26 @@
     <p style="text-align: center; font-size: 18px; color: #555;">
       Виберіть місто, щоб переглянути доступні зони для вигулу собак.
     </p>
-
-    <!-- Button Section -->
+      
     <div class="city-buttons">
       <button class="btn-city" onclick="changeCity('lviv')">Львів</button>
       <button class="btn-city" onclick="changeCity('kyiv')">Київ</button>
         <button class="btn-city" onclick="changeCity('chernivtsi')">Чернівці</button>
     </div>
-
-    <!-- Map Section -->
+      
     <div id="google-map-container" style="margin-top: 30px; width: 100%; height: 500px; border-radius: 10px;">
-      <!-- Карта Києва або Львова буде відображена тут -->
     </div>
   </div>
 </main>
 
 <script>
-  // Функція для перемикання міст
   function changeCity(city) {
     const cityMapUrls = {
       lviv: "https://www.google.com/maps/d/u/2/embed?mid=1BfXpUEEem66zKrTgkL8fVAK1Dw2gfRU&ehbc=2E312F",
       kyiv: "https://www.google.com/maps/d/embed?mid=1F9aQblIUThkVSZ8vmnWuGeEFno8&ehbc=2E312F", 
       chernivtsi: "https://www.google.com/maps/d/u/2/embed?mid=1I4CmXy2SRdBeseteBSY8ERnGaLN9rJ8&ehbc=2E312F"
     };
-
-    // Замінюємо iFrame src для вибраного міста
+      
     const iframeUrl = cityMapUrls[city];
     const iframe = `<iframe
         src="${iframeUrl}"
@@ -45,8 +40,7 @@
       </iframe>`;
     document.getElementById('google-map-container').innerHTML = iframe;
   }
-
-  // Завантаження карти Львова за замовчуванням
+  
   document.addEventListener("DOMContentLoaded", () => {
     changeCity('lviv');
   });

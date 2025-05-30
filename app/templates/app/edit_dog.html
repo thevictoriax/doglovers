@@ -3,29 +3,23 @@
 {% block title %}Редагувати інформацію про собаку{% endblock title %}
 {% block content %}
 <div class="container">
-    <!-- Back link to previous page -->
     <a href="javascript:history.back()" class="learn">
         <span class="material-icons">keyboard_return</span> Повернутись назад
     </a>
-
-    <!-- Page Title -->
+    
     <h1 class="page-title">Редагувати інформацію про {{ dog.name }}</h1>
 
     <div class="dog-form row justify-content-center">
-        <div class="col-md-6"> <!-- Встановлюємо ширину форми -->
-            <!-- Save Changes Form -->
+        <div class="col-md-6">
             <form method="post" enctype="multipart/form-data" class="form">
                 {% csrf_token %}
                 <div class="form-group">
                     {{ form.as_p }}
                 </div>
                 
-                <!-- Save Button -->
                 <button type="submit" class="btn btn-primary w-100 mb-2">Зберегти зміни</button>
-
-                <!-- Delete Button -->
+                
                 <hr>
-                <!-- Кнопка видалення всередині цієї ж форми -->
                 <div class="form-group text-center">
                     <button type="submit"
                             formaction="{% url 'delete_dog' dog.pk %}"
@@ -39,12 +33,11 @@
 </div>
 
 <script>
-    // Застосування Select2 до всіх <select> у формі
     $(document).ready(function () {
         $('#id_breed').select2({
             placeholder: "Оберіть породу...",
             allowClear: false,
-             width: '70%'// Дозволяє очистити вибір
+             width: '70%'
         });
     });
 </script>

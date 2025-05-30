@@ -35,7 +35,7 @@ class CommentForm(forms.ModelForm):
             }),
         }
         labels = {
-            'content': '',  # Встановлюємо порожній ярлик
+            'content': '',
         }
 
     def __init__(self, *args, **kwargs):
@@ -58,7 +58,7 @@ class SubscribeForm(forms.ModelForm):
         
 class NewUserForm(UserCreationForm):
     profile_image = forms.ImageField(label="Profile Image", required=False)
-    bio = forms.CharField(label="Біографія", widget=forms.Textarea(attrs={'placeholder': 'Напишіть про себе...'}))  # Add profile image field
+    bio = forms.CharField(label="Біографія", widget=forms.Textarea(attrs={'placeholder': 'Напишіть про себе...'}))
     first_name = forms.CharField(label="First Name", max_length=30, required=True)
     last_name = forms.CharField(label="Last Name", max_length=30, required=True)
     class Meta:
@@ -77,7 +77,7 @@ class NewUserForm(UserCreationForm):
     def clean_profile_image(self):
         profile_image = self.cleaned_data.get('profile_image')
         if profile_image:
-            if profile_image.size > 5 * 1024 * 1024:  # Limit file size to 5MB
+            if profile_image.size > 5 * 1024 * 1024:
                 raise forms.ValidationError("The image file size should not exceed 5MB.")
         return profile_image
     
@@ -133,7 +133,7 @@ class PostForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        if not instance.slug:  # створюємо slug тільки якщо ще нема
+        if not instance.slug:
             translated_title = _(instance.title)
             instance.slug = slugify(unidecode(translated_title))
         if commit:
@@ -146,7 +146,7 @@ class DogForm(forms.ModelForm):
     name = forms.CharField(label="Ім'я собаки", max_length=100)
     breed = forms.ChoiceField(
         label="Порода",
-        choices=DOG_BREEDS_CHOICES,  # Використовуємо список порід
+        choices=DOG_BREEDS_CHOICES,
         required=False
     )
     birth_date = forms.DateField(
@@ -155,14 +155,14 @@ class DogForm(forms.ModelForm):
             'type': 'date',
         }),
         required=True,
-        input_formats=['%Y-%m-%d']  # Дата у форматі, який очікує поле
+        input_formats=['%Y-%m-%d']
     )
     weight = forms.FloatField(
         label="Вага (кг)",
         required=True,
         widget=forms.NumberInput(attrs={'step': '0.1'})
     )
-    profile_image = forms.ImageField(label="Зображення", required=False)  # Зображення не обов'язкове
+    profile_image = forms.ImageField(label="Зображення", required=False)
 
     class Meta:
         model = Dog
@@ -171,32 +171,23 @@ class DogForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Ініціалізуємо значення поля birth_date у форматі YYYY-MM-DD
         if self.instance.pk and self.instance.birth_date:
             self.initial['birth_date'] = self.instance.birth_date.strftime('%Y-%m-%d')
 
     def clean(self):
-        """
-        Загальна валідація (для всіх полів форми).
-        """
         cleaned_data = super().clean()
         birth_date = cleaned_data.get('birth_date')
         weight = cleaned_data.get('weight')
-
         errors = []
 
-        # Валідація поля "Дата народження"
         if birth_date and birth_date > date.today():
             errors.append("Дата народження не може бути в майбутньому.")
 
-        # Валідація поля "Вага"
         if weight is not None and weight <= 0:
             errors.append("Вага повинна бути додатньою.")
 
-        # Якщо є помилки, додаємо їх як non_field_errors
         if errors:
             raise ValidationError(errors)
-
         return cleaned_data
 
 
@@ -228,8 +219,6 @@ class EventForm(forms.ModelForm):
         super(EventForm, self).__init__(*args, **kwargs)
         if user:
             self.fields['dog'].queryset = Dog.objects.filter(owner=user)
-
-        # Форматуємо значення для datetime-local
         if self.instance.pk:
             if self.instance.start:
                 self.initial['start'] = self.instance.start.strftime('%Y-%m-%dT%H:%M')
@@ -238,20 +227,15 @@ class EventForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        event_type = cleaned_data.get('event_type')  # Отримуємо вибране значення
+        event_type = cleaned_data.get('event_type')
         custom_name = cleaned_data.get('custom_name')
-
-        # Якщо обрано "Інше", вимагаємо введення назви події
         if event_type == 'other' and not custom_name:
             raise ValidationError("Для обраного варіанту 'Інше' необхідно вказати власну назву події.")
 
-        # Якщо "Інше", використовуємо власну назву як "name"
         if event_type == 'other' and custom_name:
             cleaned_data['name'] = custom_name
         else:
-            # Назва використовується з вибору EVENT_CHOICES
             cleaned_data['name'] = dict(Event.TYPE_CHOICES).get(event_type)
-
         return cleaned_data
 
 
@@ -288,14 +272,11 @@ class EditProfileForm(forms.ModelForm):
             self.fields['email'].initial = self.user.email
 
     def clean(self):
-        """
-        Перевіряємо, чи старий пароль правильний, якщо користувач вказує новий пароль.
-        """
         cleaned_data = super().clean()
         current_password = cleaned_data.get('current_password')
         new_password = cleaned_data.get('new_password')
 
-        if new_password:  # Користувач намагається змінити пароль
+        if new_password:
             if not current_password:
                 raise forms.ValidationError("Необхідно вказати старий пароль для зміни пароля.")
 
@@ -305,9 +286,6 @@ class EditProfileForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
-        """
-        Збереження даних профілю та користувача.
-        """
         profile = super().save(commit=False)
         user = self.user
 
@@ -316,7 +294,7 @@ class EditProfileForm(forms.ModelForm):
         user.email = self.cleaned_data['email']
 
         new_password = self.cleaned_data.get('new_password')
-        if new_password:  # Якщо новий пароль введений
+        if new_password:
             user.set_password(new_password)
 
         if commit:
