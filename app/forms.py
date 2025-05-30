@@ -1,12 +1,10 @@
 
-from typing import Any
 from django import forms
 from app.models import Comments, Subscribe
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from app.models import Post,  Tag, Profile, Dog, Event
-from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from ckeditor.widgets import CKEditorWidget
 from django.utils.text import slugify
 from django.utils.translation import gettext as _

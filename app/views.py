@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta, time
 from uuid import uuid4
-from django.core.mail import send_mail
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from app.models import Post, Comments, Tag, Profile, WebsiteMeta, Dog, Event
@@ -11,17 +10,11 @@ from django.contrib.auth.models import User
 from django.db.models import Count
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.contrib import messages
 import json
-from pathlib import Path
 from dateutil.relativedelta import relativedelta
-from django.utils.timezone import is_naive, make_aware
-import pytz
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
-from PIL import Image
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from PIL import Image
@@ -408,7 +401,7 @@ def user_calendar(request):
     dog_colors = {dog.id: static_colors[index % len(static_colors)] for index, dog in enumerate(user_dogs)}
 
     context = {
-        "dogs": user_dogs,  # Усі собаки користувача
+        "dogs": user_dogs,
         "dog_colors": [{"name": dog.name, "color": dog_colors[dog.id]} for dog in user_dogs],
         "dog_color_map": dog_colors,
     }
