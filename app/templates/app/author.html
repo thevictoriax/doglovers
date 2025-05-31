@@ -99,17 +99,18 @@
                   {% empty %}
                   <p>Автор ще не створив дописів</p>
                   {% endfor %}
-                {% comment %} </div>
+               </div> 
+              </div>
                 <center>
-                  <button class="btn btn-primary rounded view">
-                    Побачити більше
-                    <span class="material-icons"> trending_flat </span>
-                  </button>
-                </center>
-              </div> {% endcomment %}
+                <a href="{% url 'author_posts' profile.slug %}" class="btn btn-primary rounded view">
+                  Побачити більше
+                  <span class="material-icons"> trending_flat </span>
+                </a>
+
+              </center>
             </section>
           </div>
-         
+
           <div class="right">
             <div class="block">
               <h2 class="title2">Інші автори</h2>
@@ -152,7 +153,7 @@
 }
 
 .btn:hover {
-  background-color: #2e8555; 
+  background-color: #2e8555;
   text-decoration: none;
 }
 

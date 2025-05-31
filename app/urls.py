@@ -35,6 +35,8 @@ urlpatterns = [
    path('add_event/', views.add_event, name='add_event'),
    path('edit_profile/', views.edit_profile, name='edit_profile'),
    path('all_tags/', views.all_tags, name='all_tags'),
+   path("author_posts/<slug:slug>/", views.author_posts, name="author_posts"),
+
 
 
 

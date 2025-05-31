@@ -117,10 +117,12 @@ def post_page(request, slug):
                 comment.save()
 
             comments = Comments.objects.filter(post=post, parent=None)
+            comments_count = Comments.objects.filter(post=post).count()
             return render(request, 'app/post.html', {
                 'post': post,
                 'form': form,
                 'comments': comments,
+                'comments_count': comments_count,
                 'is_bookmarked': is_bookmarked,
                 'post_is_liked': post_is_liked,
                 'number_of_likes': number_of_likes,
@@ -129,6 +131,7 @@ def post_page(request, slug):
                 'tags': Tag.objects.all(),
                 'related_posts': Post.objects.exclude(id=post.id).filter(author=post.author)[:3]
             })
+
 
     if request.method == "POST":
         if "delete_comment" in request.POST:
@@ -149,7 +152,7 @@ def post_page(request, slug):
         request.session.modified = True
 
     context = {
-        'post': post, 'form': form, 'comments': comments, 'is_bookmarked': is_bookmarked, 'post_is_liked': post_is_liked,
+        'post': post, 'form': form, 'comments': comments, 'comments_count': Comments.objects.filter(post=post).count(), 'is_bookmarked': is_bookmarked, 'post_is_liked': post_is_liked,
         'number_of_likes': number_of_likes, 'recent_posts': Post.objects.exclude(id=post.id).order_by('-last_updated')[:3],
         'top_authors': User.objects.annotate(post_count=Count('post')).order_by('-post_count')[:5],'tags': Tag.objects.all(),
         'related_posts': Post.objects.exclude(id=post.id).filter(author=post.author)[:3]
@@ -305,6 +308,23 @@ def tag_posts(request, slug):
     except EmptyPage:
         tag_posts = paginator.page(paginator.num_pages)
     return render(request, 'app/tag_posts.html', {'tag_posts': tag_posts, 'tag': tag})
+
+def author_posts(request, slug):
+    profile = get_object_or_404(Profile, slug=slug)
+    author = profile.user
+    author_posts = Post.objects.filter(author=author)
+
+    paginator = Paginator(author_posts, 6)
+    page = request.GET.get('page')
+
+    try:
+        author_posts = paginator.page(page)
+    except PageNotAnInteger:
+        author_posts = paginator.page(1)
+    except EmptyPage:
+        author_posts = paginator.page(paginator.num_pages)
+
+    return render(request, 'app/author_posts.html', {'author_posts': author_posts, 'profile': profile})
 
 def dog_walking_map(request):
     return render(request, 'app/map.html')

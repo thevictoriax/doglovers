@@ -894,8 +894,6 @@ p a {
 }
 .field-error {
   background: var(--green);
-
-  height: 100%;
   margin-top: 0.5rem;
   border-radius: 5rem;
 }
