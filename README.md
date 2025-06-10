@@ -94,7 +94,7 @@
 
 Відновлення резервної копії
 
-Завантажте [файл]([url](https://drive.google.com/file/d/1Z0bpDEAVlIFQapxfixHJQ6176Rjo52pu/view?usp=sharing)) і виконайте команду для відновлення
+Завантажте [файл](https://drive.google.com/file/d/1Z0bpDEAVlIFQapxfixHJQ6176Rjo52pu/view?usp=sharing) і виконайте команду для відновлення
 
   ``` bash 
   psql -U postgres -d DogLovers -f path/to/doglovers_db.sql
